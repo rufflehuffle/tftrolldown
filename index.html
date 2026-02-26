@@ -1,0 +1,224 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <link rel="stylesheet" href="style.css">
+    <title>42roll.it</title>
+</head>
+<body>
+    <!-- Top Round Timer Bar -->
+    <div class="top-timer-bar">
+        <div class="top-timer-progress-track">
+            <div class="top-timer-progress-fill"></div>
+        </div>
+        <div class="top-timer-controls">
+            <div class="timer-input-container">
+                <input class="timer-input" type="number" value="30" min="1" max="999" title="Set duration (seconds)">
+                <span class="timer-value" style="display:none;">30</span>
+            </div>
+            <div class="timer-buttons">
+                <button class="timer-start-btn">▶</button>
+                <button class="timer-reset-btn">↺</button>
+            </div>
+        </div>
+    </div>
+
+    <!-- Trait Panel (left side) -->
+    <div class="trait-panel"></div>
+    <!-- Floating tooltip for trait hover -->
+    <div class="trait-tooltip" style="display:none;"></div>
+
+    <div class="hud">
+        <div class="level-panel">
+            <div class="level-selection">
+                <select name="level">
+                    <option value="2">2</option>
+                    <option value="3">3</option>
+                    <option value="4">4</option>
+                    <option value="5">5</option>
+                    <option value="6">6</option>
+                    <option value="7">7</option>
+                    <option value="8" selected>8</option>
+                    <option value="9">9</option>
+                    <option value="10">10</option>
+                </select>
+            </div>
+            <div class="level-xp-row">
+                <div class="level-display">Lvl 8</div>
+                <span class="xp-bar-text">0 / 68</span>
+            </div>
+            <div class="xp-bar">
+                <div class="xp-bar-fill"></div>
+            </div>
+            <button class="buy-xp-button">Buy XP <span class="buy-xp-cost">4</span></button>
+            <button class="roll-button">Refresh <span class="roll-cost">2</span></button>
+        </div>
+
+        <div class="shop-container">
+            <div class="above-shop-container">
+                <div class="odds-container">
+                    <div class="odd cost-1-odds">• 100%</div>
+                    <div class="odd cost-2-odds">● 100%</div>
+                    <div class="odd cost-3-odds">▲ 100%</div>
+                    <div class="odd cost-4-odds">◆ 100%</div>
+                    <div class="odd cost-5-odds">⬟ 100%</div>
+                </div>
+                <div class="gold-container">
+                    <div class="gold">50</div>
+                </div>
+            </div>
+            <div class="shop">
+                <div class="shop-slot shop-slot-1">
+                    <div class="shop-slot-clip">
+                        <img class="champ-img" src="" alt="" draggable="false">
+                        <div class="shop-slot-bar"><span class="shop-slot-name"></span><span class="shop-slot-cost"></span></div>
+                    </div>
+                    <div class="shop-star-indicator"></div>
+                </div>
+                <div class="shop-slot shop-slot-2">
+                    <div class="shop-slot-clip">
+                        <img class="champ-img" src="" alt="" draggable="false">
+                        <div class="shop-slot-bar"><span class="shop-slot-name"></span><span class="shop-slot-cost"></span></div>
+                    </div>
+                    <div class="shop-star-indicator"></div>
+                </div>
+                <div class="shop-slot shop-slot-3">
+                    <div class="shop-slot-clip">
+                        <img class="champ-img" src="" alt="" draggable="false">
+                        <div class="shop-slot-bar"><span class="shop-slot-name"></span><span class="shop-slot-cost"></span></div>
+                    </div>
+                    <div class="shop-star-indicator"></div>
+                </div>
+                <div class="shop-slot shop-slot-4">
+                    <div class="shop-slot-clip">
+                        <img class="champ-img" src="" alt="" draggable="false">
+                        <div class="shop-slot-bar"><span class="shop-slot-name"></span><span class="shop-slot-cost"></span></div>
+                    </div>
+                    <div class="shop-star-indicator"></div>
+                </div>
+                <div class="shop-slot shop-slot-5">
+                    <div class="shop-slot-clip">
+                        <img class="champ-img" src="" alt="" draggable="false">
+                        <div class="shop-slot-bar"><span class="shop-slot-name"></span><span class="shop-slot-cost"></span></div>
+                    </div>
+                    <div class="shop-star-indicator"></div>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <button class="team-planner-button">Team Planner</button>
+    <button class="team-builder-button">Team Builder</button>
+    <button class="rolldown-mode-button" style="display:none;">▶ Rolldown</button>
+    <button class="presets-button">Presets</button>
+
+    <!-- Team Builder Unit Picker (right side panel) -->
+    <div class="tb-picker-panel" style="display:none;">
+        <div class="tb-picker-header">
+            <span class="tb-picker-title">Add Units</span>
+        </div>
+        <div class="tb-picker-inner"></div>
+    </div>
+
+    <!-- Save Preset Modal -->
+    <div class="save-preset-backdrop" style="display:none;">
+        <div class="save-preset-modal">
+            <div class="save-preset-header">
+                <span class="save-preset-title">Save Board as Preset</span>
+                <button class="save-preset-close">✕</button>
+            </div>
+            <div class="save-preset-body">
+                <label class="save-preset-label">Preset Name</label>
+                <input class="save-preset-input" type="text" placeholder="e.g. Mage Reroll 8">
+                <div class="save-preset-actions">
+                    <button class="save-preset-confirm">Save</button>
+                    <button class="save-preset-cancel">Cancel</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <!-- Presets List Modal -->
+    <div class="presets-backdrop" style="display:none;">
+        <div class="presets-modal">
+            <div class="presets-header">
+                <span class="presets-title">Presets</span>
+                <button class="presets-close">✕</button>
+            </div>
+            <div class="presets-list"></div>
+        </div>
+    </div>
+
+    <!-- Team Planner Modal -->
+    <div class="team-planner-backdrop" style="display:none;">
+        <div class="team-planner-modal">
+            <div class="team-planner-header">
+                <span class="team-planner-title">Team Planner</span>
+                <button class="team-planner-close">✕</button>
+            </div>
+            <div class="team-planner-picker"></div>
+            <div class="team-planner-selected-section">
+                <div class="team-planner-selected-label">Your Team <span class="team-planner-count">0/10</span></div>
+                <div class="team-planner-selected-row"></div>
+            </div>
+        </div>
+    </div>
+
+    <div class="bench">
+        <div class="hex-wrapper"><div class="bench-slot bench-slot-1"></div><div class="star-indicator"></div></div>
+        <div class="hex-wrapper"><div class="bench-slot bench-slot-2"></div><div class="star-indicator"></div></div>
+        <div class="hex-wrapper"><div class="bench-slot bench-slot-3"></div><div class="star-indicator"></div></div>
+        <div class="hex-wrapper"><div class="bench-slot bench-slot-4"></div><div class="star-indicator"></div></div>
+        <div class="hex-wrapper"><div class="bench-slot bench-slot-5"></div><div class="star-indicator"></div></div>
+        <div class="hex-wrapper"><div class="bench-slot bench-slot-6"></div><div class="star-indicator"></div></div>
+        <div class="hex-wrapper"><div class="bench-slot bench-slot-7"></div><div class="star-indicator"></div></div>
+        <div class="hex-wrapper"><div class="bench-slot bench-slot-8"></div><div class="star-indicator"></div></div>
+        <div class="hex-wrapper"><div class="bench-slot bench-slot-9"></div><div class="star-indicator"></div></div>
+    </div>
+
+    <div class="board-count">0/8</div>
+    <div class="board">
+        <div class="board-row">
+            <div class="hex-wrapper"><div class="hex A1"></div><div class="star-indicator"></div></div>
+            <div class="hex-wrapper"><div class="hex A2"></div><div class="star-indicator"></div></div>
+            <div class="hex-wrapper"><div class="hex A3"></div><div class="star-indicator"></div></div>
+            <div class="hex-wrapper"><div class="hex A4"></div><div class="star-indicator"></div></div>
+            <div class="hex-wrapper"><div class="hex A5"></div><div class="star-indicator"></div></div>
+            <div class="hex-wrapper"><div class="hex A6"></div><div class="star-indicator"></div></div>
+            <div class="hex-wrapper"><div class="hex A7"></div><div class="star-indicator"></div></div>
+        </div>
+        <div class="board-row offset">
+            <div class="hex-wrapper"><div class="hex B1"></div><div class="star-indicator"></div></div>
+            <div class="hex-wrapper"><div class="hex B2"></div><div class="star-indicator"></div></div>
+            <div class="hex-wrapper"><div class="hex B3"></div><div class="star-indicator"></div></div>
+            <div class="hex-wrapper"><div class="hex B4"></div><div class="star-indicator"></div></div>
+            <div class="hex-wrapper"><div class="hex B5"></div><div class="star-indicator"></div></div>
+            <div class="hex-wrapper"><div class="hex B6"></div><div class="star-indicator"></div></div>
+            <div class="hex-wrapper"><div class="hex B7"></div><div class="star-indicator"></div></div>
+        </div>
+        <div class="board-row">
+            <div class="hex-wrapper"><div class="hex C1"></div><div class="star-indicator"></div></div>
+            <div class="hex-wrapper"><div class="hex C2"></div><div class="star-indicator"></div></div>
+            <div class="hex-wrapper"><div class="hex C3"></div><div class="star-indicator"></div></div>
+            <div class="hex-wrapper"><div class="hex C4"></div><div class="star-indicator"></div></div>
+            <div class="hex-wrapper"><div class="hex C5"></div><div class="star-indicator"></div></div>
+            <div class="hex-wrapper"><div class="hex C6"></div><div class="star-indicator"></div></div>
+            <div class="hex-wrapper"><div class="hex C7"></div><div class="star-indicator"></div></div>
+        </div>
+        <div class="board-row offset">
+            <div class="hex-wrapper"><div class="hex D1"></div><div class="star-indicator"></div></div>
+            <div class="hex-wrapper"><div class="hex D2"></div><div class="star-indicator"></div></div>
+            <div class="hex-wrapper"><div class="hex D3"></div><div class="star-indicator"></div></div>
+            <div class="hex-wrapper"><div class="hex D4"></div><div class="star-indicator"></div></div>
+            <div class="hex-wrapper"><div class="hex D5"></div><div class="star-indicator"></div></div>
+            <div class="hex-wrapper"><div class="hex D6"></div><div class="star-indicator"></div></div>
+            <div class="hex-wrapper"><div class="hex D7"></div><div class="star-indicator"></div></div>
+        </div>
+    </div>
+
+    <div class="sell-zone">Sell</div>
+
+    <script type="module" src="js/main.js"></script>
+</body>
+</html>
