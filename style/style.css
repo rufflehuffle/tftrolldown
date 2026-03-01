@@ -1,17 +1,5 @@
-@font-face {
-    font-family: 'Spiegel';
-    src: url('/fonts/Spiegel_TT_Regular.ttf') format('truetype');
-    font-weight: 400;
-}
-
-@font-face {
-    font-family: 'Spiegel';
-    src: url('/fonts/Spiegel_TT_Bold.ttf') format('truetype');
-    font-weight: 700;
-}
-
 body {
-    font-family: 'Spiegel', sans-serif;
+    font-family: 'Gill Sans', sans-serif;
     background-color: #161616;
 }
 
@@ -123,9 +111,9 @@ body {
     padding: 2px 5px;
     pointer-events: none;
     user-select: none;
-    font-family: serif;
+    font-family: 'BeaufortForLoL', 'serif';
     font-size: 16px;
-    font-weight: 800;
+    font-weight: 700;
     color: white;
     text-shadow: rgba(0, 0, 0, 0.7) 1.5px 1.5px;
 }
@@ -1375,8 +1363,6 @@ body.team-builder-mode .hex-wrapper.has-unit:focus-within .star-adj {
 .timer-value {
     font-size: 16px;
     font-weight: 700;
-    font-family: monospace;
-    font-variant-numeric: tabular-nums;
     color: #e5e7eb;
     min-width: 36px;
     text-align: right;

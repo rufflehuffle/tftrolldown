@@ -1,0 +1,137 @@
+/* ===== Beaufort for LoL ===== */
+@font-face {
+  font-family: 'BeaufortForLoL';
+  src: url('fonts/BeaufortforLOL-Light.ttf') format('truetype');
+  font-weight: 300;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'BeaufortForLoL';
+  src: url('fonts/BeaufortforLOL-LightItalic.ttf') format('truetype');
+  font-weight: 300;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'BeaufortForLoL';
+  src: url('fonts/BeaufortforLOL-Regular.ttf') format('truetype');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'BeaufortForLoL';
+  src: url('fonts/BeaufortforLOL-Italic.ttf') format('truetype');
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'BeaufortForLoL';
+  src: url('fonts/BeaufortforLOL-Medium.ttf') format('truetype');
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'BeaufortForLoL';
+  src: url('fonts/BeaufortforLOL-MediumItalic.ttf') format('truetype');
+  font-weight: 500;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'BeaufortForLoL';
+  src: url('fonts/BeaufortforLOL-Bold.ttf') format('truetype');
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'BeaufortForLoL';
+  src: url('fonts/BeaufortforLOL-BoldItalic.ttf') format('truetype');
+  font-weight: 700;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'BeaufortForLoL';
+  src: url('fonts/BeaufortforLOL-Heavy.ttf') format('truetype');
+  font-weight: 900;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'BeaufortForLoL';
+  src: url('fonts/BeaufortforLOL-HeavyItalic.ttf') format('truetype');
+  font-weight: 900;
+  font-style: italic;
+}
+
+/* ===== Gill Sans ===== */
+@font-face {
+  font-family: 'Gill Sans';
+  src: url('fonts/Gill Sans Light.otf') format('opentype');
+  font-weight: 300;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Gill Sans';
+  src: url('fonts/Gill Sans Light Italic.otf') format('opentype');
+  font-weight: 300;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'Gill Sans';
+  src: url('fonts/Gill Sans.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Gill Sans';
+  src: url('fonts/Gill Sans Italic.otf') format('opentype');
+  font-weight: 400;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'Gill Sans';
+  src: url('fonts/Gill Sans Medium.otf') format('opentype');
+  font-weight: 500;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Gill Sans';
+  src: url('fonts/Gill Sans Medium Italic.otf') format('opentype');
+  font-weight: 500;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'Gill Sans';
+  src: url('fonts/Gill Sans Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Gill Sans';
+  src: url('fonts/Gill Sans Bold Italic.otf') format('opentype');
+  font-weight: 700;
+  font-style: italic;
+}
+@font-face {
+  font-family: 'Gill Sans';
+  src: url('fonts/Gill Sans Heavy.otf') format('opentype');
+  font-weight: 900;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Gill Sans';
+  src: url('fonts/Gill Sans Heavy Italic.otf') format('opentype');
+  font-weight: 900;
+  font-style: italic;
+}
+
+/* ===== Gill Sans Condensed ===== */
+@font-face {
+  font-family: 'Gill Sans Condensed';
+  src: url('fonts/GillSans Condensed.otf') format('opentype');
+  font-weight: 400;
+  font-style: normal;
+}
+@font-face {
+  font-family: 'Gill Sans Condensed';
+  src: url('fonts/GillSans Condensed Bold.otf') format('opentype');
+  font-weight: 700;
+  font-style: normal;
+}
