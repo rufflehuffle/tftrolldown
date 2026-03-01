@@ -149,28 +149,30 @@ export function renderTraits() {
 
         const info = document.createElement('div');
         info.className = 'trait-info';
+
         const countEl = document.createElement('span');
         countEl.className = 'trait-count';
         countEl.textContent = count;
-        info.appendChild(countEl);
+        row.appendChild(countEl);
+        
         const nameEl = document.createElement('span');
         nameEl.className = 'trait-name';
         nameEl.textContent = traitName;
         info.appendChild(nameEl);
         row.appendChild(info);
 
-        if (bps.length > 0) {
-            const pips = document.createElement('div');
-            pips.className = 'trait-pips';
-            for (const bp of bps) {
-                const pip = document.createElement('span');
-                pip.className = 'trait-pip' +
-                    (count >= bp ? ' pip-active' : '') +
-                    (bp === activeBP && isActive ? ' pip-current' : '');
-                pip.textContent = bp;
-                pips.appendChild(pip);
-            }
-            row.appendChild(pips);
+        if (isActive) {
+            const traitPips = document.createElement('span');
+            traitPips.className = 'trait-pips';
+            traitPips.innerHTML = bps.map(bp => 
+                `<span class="${bp === activeBP ? 'pip-active' : ''}">${bp}</span>`
+            ).join(' ＞ ');
+            info.append(traitPips);
+        } else {
+            const inactiveCount = document.createElement('span');
+            inactiveCount.className = 'trait-pip-inactive-count';
+            inactiveCount.textContent = `${count} / ${bps[0]}`;
+            info.append(inactiveCount);
         }
 
         row.addEventListener('mouseenter', (e) => showTraitTooltip(e, traitName, count, activeBP));

@@ -55,3 +55,6 @@ Ideas
 - Add items
 - Rolldown grading
 - Make a bot that simulates another player rolling down
+
+## Known Issues
+- Inactive traits move around based on the order of units on the board
