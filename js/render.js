@@ -19,11 +19,11 @@ export function starColor(stars) {
 export function costColor(cost) {
     switch (cost) {
         case 1: return '#162431';
-        case 2: return '#4caf50';
-        case 3: return '#2196f3';
-        case 4: return '#9c27b0';
-        case 5: return '#ff9800';
-        case 7: return '#ff9800';
+        case 2: return '#10572C';
+        case 3: return '#1D5079';
+        case 4: return '#8F0A6B';
+        case 5: return '#C48217';
+        case 7: return '#C48217';
         default: return '#444';
     }
 }
