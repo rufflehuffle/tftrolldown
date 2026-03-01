@@ -1,12 +1,12 @@
-# 2.27.26 Plan
-    - Compare app to in-game screenshots and fix discrepancies
+# TODO
+    - Fix trait indicators
 
 # Major
 ## Shop
-    - Fix animation to be a ring-like effect
     - When dragging champion out of the shop, it should be placed back if not dragged too far
         - When you're far enough, the tile should become transparent
         - Dragging the champion out should also leave shop background visible instead of duplicating the tile
+    - Fix animation to be a ring-like effect
     - Picking up shop slot should also pick up the entire div not just the image now
 
 ## Trait Indicators

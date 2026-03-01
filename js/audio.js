@@ -1,5 +1,5 @@
 const ctx = new AudioContext();
-const base = window.location.hostname === "127.0.0.1:5500" ? "." : "/yetanothertftrolldownsim";
+const base = window.location.hostname === "127.0.0.1" ? "../sfx/" : "/yetanothertftrolldownsim/sfx/";
 
 export async function playSound(path) {
   const response = await fetch(`${base}/${path}`);

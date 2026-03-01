@@ -89,7 +89,7 @@ export function doRoll(subtractGold=true) {
     state.shop = rollShop();
     if (subtractGold) {
         state.gold -= 2;
-        playSound('../sfx/roll.mp3')
+        playSound('roll.mp3')
     }
     render();
 }
@@ -216,7 +216,7 @@ export function buyChamp(champName, shopIndex) {
             setUnitAt(target.location, target.unit);
             break;
         }
-        playSound('../sfx/buy.mp3');
+        playSound('buy.mp3');
         checkStarUp(champName);
         render();
     
@@ -227,7 +227,7 @@ export function buyChamp(champName, shopIndex) {
     state.gold -= pool[champName].cost;
     state.shop[shopIndex] = null;
     checkStarUp(champName);
-    playSound('../sfx/buy.mp3');
+    playSound('buy.mp3');
     render();
 }
 
@@ -235,7 +235,7 @@ export function sellUnit(unit, location) {
     if (pool[unit.name].cost == 0) return;
     state.gold += sellValue(unit);
     setUnitAt(location, null);
-    playSound('../sfx/sell.mp3');
+    playSound('sell.mp3');
 }
 
 function sellValue(unit) {
