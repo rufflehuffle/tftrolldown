@@ -128,7 +128,7 @@ function handleDragStart(e, location) {
     ghost.style.left = `${e.clientX}px`;
     ghost.style.top = `${e.clientY}px`;
     ghost.style.display = 'block';
-    playSound('../sfx/unit_select.mp3')
+    playSound('unit_select.mp3')
 }
 
 function handleDrop(location) {
@@ -136,14 +136,14 @@ function handleDrop(location) {
     const draggedUnit = getUnitAt(dragging);
     const targetUnit  = getUnitAt(location);
     if (location.type === 'board' && dragging.type !== 'board' && !targetUnit && boardCount() >= state.level) {
-        playSound('../sfx/board_full.mp3');
+        playSound('board_full.mp3');
         endDrag();
         return;
     }
     setUnitAt(dragging, targetUnit);
     setUnitAt(location, draggedUnit);
     endDrag();
-    playSound('../sfx/unit_drop.mp3')
+    playSound('unit_drop.mp3')
     applyBoardEffects();
     render();
 }
@@ -256,7 +256,7 @@ document.addEventListener('mouseup', (e) => {
             if (hoveredSlot.type === 'board') {
                 if (!existing && boardCount() >= state.level) {
                     // board full, try bench
-                    playSound('../sfx/board_full.mp3')
+                    playSound('board_full.mp3')
                     const benchIdx = state.bench.findIndex(s => s === null);
                     if (benchIdx !== -1) state.bench[benchIdx] = { name: champName, stars: 1 };
                 } else if (!existing) {
