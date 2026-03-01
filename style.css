@@ -157,13 +157,18 @@ body {
 
 .hud {
     position: fixed;
-    bottom: 20px;
+    bottom: 0px;
     left: 50%;
     transform: translateX(-50%);
     display: flex;
     align-items: flex-start;
     user-select: none;
     gap: 16px;
+    background-color: #0D1416;
+    padding: 8px;
+    border-left: solid #947842;
+    border-top: solid #947842;
+    border-right: solid #947842;
 }
 
 .shop-container {
@@ -176,13 +181,37 @@ body {
 
 .gold-container {
     text-align: center;
-    color: yellow;
+    color: white;
+    text-shadow: 1px 1px solid black;
+    font-size: 16px;
+    display: flex;
+    flex-direction: row;
+    align-items: center;
     cursor: default;
 }
 
 .gold {
     cursor: default;
     user-select: none;
+}
+
+.gold::before {
+  /* Inserts the image content using the content property and a URL */
+  content: url('https://wiki.leagueoflegends.com/en-us/images/thumb/Gold_colored_icon.png/20px-Gold_colored_icon.png?39991'); 
+
+  /* Pseudo-elements default to display: inline, but if you need to set explicit 
+     width/height, you may use display: inline-block */
+  display: inline-block; 
+  
+  /* Optional: Set specific dimensions for the image if needed */
+  width: 20px; 
+  height: 20px; 
+  
+  /* Optional: Add some spacing between the image and the text */
+  margin-right: 4px; 
+  
+  /* Ensures the image aligns nicely with the text baseline */
+  vertical-align: middle;
 }
 
 .gold:hover {

@@ -277,6 +277,10 @@ function renderShopSlot(slot, champName) {
             badge.className = 'team-plan-badge';
             slot.querySelector('.shop-slot-clip').appendChild(badge);
         }
+
+        if (champ.cost > state.gold) { 
+            slot.style.filter = "grayscale(100%)";
+        }
     } else {
         slot.querySelector('.shop-star-indicator').textContent = '';
         slot.style.borderColor = '#444';
