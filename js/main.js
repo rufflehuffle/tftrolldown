@@ -163,6 +163,8 @@ sellZone.addEventListener('mouseleave', () => {
 });
 sellZone.addEventListener('mouseup', () => {
     if (!dragging) return;
+    // Block selling before the round starts
+    if (isPlanning() || isRoundEnd()) { endDrag(); return; }
     const unit = dragging.type === 'shop' ? null : getUnitAt(dragging);
     if (unit) {
         sellUnit(unit, dragging)
@@ -195,8 +197,14 @@ document.querySelectorAll('.shop-slot').forEach((slot, i) => {
     });
 });
 
-document.querySelector('.roll-button').addEventListener('click', doRoll);
-document.querySelector('.buy-xp-button').addEventListener('click', buyXp);
+document.querySelector('.roll-button').addEventListener('click', () => {
+    if (isPlanning() || isRoundEnd()) return;
+    doRoll();
+});
+document.querySelector('.buy-xp-button').addEventListener('click', () => {
+    if (isPlanning() || isRoundEnd()) return;
+    buyXp();
+});
 
 document.querySelectorAll('.bench-slot').forEach((slot, i) => {
     const location = { type: 'bench', index: i };
@@ -290,14 +298,40 @@ document.addEventListener('keydown', (e) => {
         if (lastLoadedPreset) loadPreset(lastLoadedPreset);
         return;
     }
-    if (e.key === 'd') { if (!e.repeat) doRoll() };
-    if (e.key === 'f' || e.key === 'F') { if (!e.repeat) buyXp() };
+    // Space: start round from planning, or resume from paused
+    if (e.key === ' ') {
+        e.preventDefault();
+        if (isPlanning()) {
+            timerControls.start();
+            startRound();
+        } else if (isPaused()) {
+            timerControls.resume();
+            resumeRound();
+        }
+        return;
+    }
+    if (e.key === 'd') {
+        if (!e.repeat) {
+            if (isRoundEnd() && lastLoadedPreset) {
+                // In roundEnd: D resets to last preset instead of rolling
+                loadPreset(lastLoadedPreset);
+                timerControls.reset();
+                returnToPlanning();
+                updateOverlayContent();
+            } else if (!isPlanning() && !isRoundEnd()) {
+                doRoll();
+            }
+        }
+    }
+    if (e.key === 'f' || e.key === 'F') { if (!e.repeat && !isPlanning() && !isRoundEnd()) buyXp() };
     if (e.key === 'w') {
         moveHovered();
         applyBoardEffects();
         render();
     }
     if (e.key === 'e') {
+        // Block selling before the round starts
+        if (isPlanning() || isRoundEnd()) return;
         if (dragging && dragging.type !== 'shop') {
             const unit = getUnitAt(dragging);
             if (unit) {
@@ -323,6 +357,116 @@ document.querySelectorAll('.bench-slot, .hex, .shop-slot, .shop-container, .star
 document.querySelector('.team-builder-button').addEventListener('click', () => openTeamBuilder(ghost, openSavePreset));
 document.querySelector('.rolldown-mode-button').addEventListener('click', closeTeamBuilder);
 document.querySelector('.presets-button').addEventListener('click', openPresets);
+
+// ============================================================
+// Rolldown UI Overlays
+// ============================================================
+const rdShopOverlayHint       = document.querySelector('.rd-shop-overlay__hint');
+const rdShopOverlayPresetName = document.querySelector('.rd-shop-overlay__preset-name');
+const rdShopPrimaryBtn        = document.querySelector('.rd-shop-overlay__primary-btn');
+const rdOverlayTbBtn       = document.querySelector('.rd-overlay-tb-btn');
+const rdOverlayPresetsBtn  = document.querySelector('.rd-overlay-presets-btn');
+const rdOverlayFreerollBtn = document.querySelector('.rd-overlay-freeroll-btn');
+const rdOverlayRoundendFreerollBtn = document.querySelector('.rd-overlay-roundend-freeroll-btn');
+const rdPauseEndBtn        = document.querySelector('.rd-pause-overlay__end-btn');
+const rdPauseResetBtn      = document.querySelector('.rd-pause-overlay__reset-btn');
+const rdPauseFreerollBtn   = document.querySelector('.rd-pause-overlay__freeroll-btn');
+
+function updateOverlayContent() {
+    const mode = getRdMode();
+    if (mode === 'planning') {
+        rdShopOverlayHint.textContent = 'Space to start';
+        rdShopOverlayPresetName.textContent = '';
+        rdShopPrimaryBtn.textContent = '▶  Start Round';
+        rdShopPrimaryBtn.style.display = '';
+        rdShopPrimaryBtn.disabled = false;
+        rdOverlayTbBtn.style.display = '';
+        rdOverlayPresetsBtn.style.display = '';
+        rdOverlayFreerollBtn.style.display = '';
+        rdOverlayRoundendFreerollBtn.style.display = 'none';
+    } else if (mode === 'roundEnd') {
+        rdShopOverlayHint.textContent = lastLoadedPreset ? 'Press D to reset' : '';
+        // Preset name on its own line in gold
+        rdShopOverlayPresetName.textContent = lastLoadedPreset ? lastLoadedPreset.name : '';
+        rdShopPrimaryBtn.textContent = lastLoadedPreset ? '↺  Reset to Preset' : '↺  Reset Timer';
+        rdShopPrimaryBtn.style.display = '';
+        rdShopPrimaryBtn.disabled = false;
+        rdOverlayTbBtn.style.display = 'none';
+        rdOverlayPresetsBtn.style.display = 'none';
+        rdOverlayFreerollBtn.style.display = 'none';
+        rdOverlayRoundendFreerollBtn.style.display = '';
+    } else {
+        rdOverlayRoundendFreerollBtn.style.display = 'none';
+    }
+    // Sync pause overlay reset button
+    if (rdPauseResetBtn) {
+        rdPauseResetBtn.disabled = !lastLoadedPreset;
+        rdPauseResetBtn.textContent = lastLoadedPreset ? `↺  ${lastLoadedPreset.name}` : 'Reset to Preset';
+    }
+}
+
+// Primary button: Start Round (planning) or Reset Preset (roundEnd)
+rdShopPrimaryBtn.addEventListener('click', () => {
+    const mode = getRdMode();
+    if (mode === 'planning') {
+        timerControls.start();
+        startRound();
+    } else if (mode === 'roundEnd') {
+        if (lastLoadedPreset) loadPreset(lastLoadedPreset);
+        timerControls.reset();
+        returnToPlanning();
+    }
+});
+
+// Secondary overlay buttons mirror the fixed sidebar buttons
+rdOverlayTbBtn.addEventListener('click', () => {
+    if (isPlanning()) openTeamBuilder(ghost, openSavePreset);
+});
+rdOverlayPresetsBtn.addEventListener('click', () => {
+    if (isPlanning()) openPresets();
+});
+rdOverlayFreerollBtn.addEventListener('click', () => {
+    if (isPlanning()) enterFreeroll();
+});
+rdOverlayRoundendFreerollBtn.addEventListener('click', () => {
+    if (isRoundEnd()) {
+        timerControls.reset();
+        returnToPlanning();
+        enterFreeroll();
+        updateOverlayContent();
+    }
+});
+
+// Pause overlay: Reset to last preset
+rdPauseResetBtn.addEventListener('click', () => {
+    if (!lastLoadedPreset) return;
+    timerControls.reset();
+    loadPreset(lastLoadedPreset);
+    returnToPlanning();
+    updateOverlayContent();
+});
+
+// Pause overlay: End Round Early
+rdPauseEndBtn.addEventListener('click', () => {
+    timerControls.reset();
+    finishRound();       // → roundEnd (board locks)
+    returnToPlanning();  // → planning immediately (no board to fill from bench here)
+    updateOverlayContent();
+});
+
+// Pause overlay: enter Free Roll mode
+rdPauseFreerollBtn.addEventListener('click', () => {
+    timerControls.reset();
+    enterFreeroll();
+});
+
+
+// Keep overlay content fresh on every mode change
+document.addEventListener('rdmodechange', () => updateOverlayContent());
+
+// Init overlay content
+updateOverlayContent();
+
 
 document.querySelector('.planner-selected__clear-btn')
     ?.addEventListener('click', () => {
@@ -524,6 +668,11 @@ export let timerControls = {};
             if (isPaused()) {
                 resumeTimer();
                 resumeRound();
+            } else if (isFreeroll()) {
+                // Exit freeroll and start a fresh timed round
+                exitFreeroll('planning');
+                startTimer();
+                startRound();
             } else {
                 startTimer();
                 if (isPlanning()) startRound();
