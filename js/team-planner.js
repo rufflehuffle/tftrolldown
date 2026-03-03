@@ -266,6 +266,8 @@ export function renderTeamGrid() {
             img.className = 'planner-selected__unit-img';
             img.src = champ.icon;
             img.alt = name;
+            img.draggable = false;
+            img.addEventListener('mousedown', e => e.preventDefault());
             slot.appendChild(img);
 
             // Name bar

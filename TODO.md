@@ -1,9 +1,16 @@
 # TODO
-    Work on Team Planner action items
+
+Next steps are to make training a specific rolldown as seamless as possible. To do that I think the following needs to be done:
+1. Add a state machine that tracks whether the player is in rolldown mode, team builder, and what menu the player has open (presets, planner, etc.)
+2. 
+
 
 # Major
-## Team Planner
-- Hook up new team planner to the existing JS
+
+## Setup Flow
+Basically make it less clunky to use the timer and rolldown simulatenously (shouldn't even have to think about starting the timer)
+- Add auto-reset
+- Add a pause + end round early button
 
 ## Shop
 - Implement proper shop drag behavior
@@ -27,6 +34,7 @@
 ## Shop
 - Change star up animation to be a ring-like effect
 - Add gem to top of shop slot
+- Add lock icon to shop
 
 ## SFX
 - Record buy XP, combine, end of round timer sfx
