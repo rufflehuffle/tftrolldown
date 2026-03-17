@@ -267,9 +267,11 @@ function placeBoardUnits(boardUnits) {
 // Main export
 //
 // Assumptions:
-//   • Lv.8, 80g available at 4-1 (represents total spending budget; level to 8 on 4-2)
+//   • Lv.7, 140g available at 4-1 (total spending budget before buying XP)
 //   • Standard leveling curve (see SHOP_SEQUENCE above)
 //   • One natural shop per round — no rolling
+//   • After unit buys, gold is spent on XP (4g / 4 XP) until gold would
+//     drop below 50 or XP reaches 58 (just shy of levelling to 8)
 //   • Board effects (Tibbers / Ice Tower / Sand Soldiers) fire on
 //     first unit interaction after load (applyBoardEffects lives
 //     in main.js which cannot be imported here without a cycle).
@@ -304,7 +306,7 @@ export function generate41Board(teamPlan) {
     for (let attempt = 0; attempt < NUM_CANDIDATES; attempt++) {
 
         // ── Simulate shops & buy ───────────────────────────────
-        let gold        = 80;
+        let gold        = 140;
         const rawCopies = {};
         const taken     = {};
 
@@ -460,6 +462,13 @@ export function generate41Board(teamPlan) {
             gold += localSellValue(finalBench.shift());
         }
 
+        // ── Buy XP: spend gold on XP until < 50g remaining or 58 XP ──
+        let xp = 0;
+        while (gold - 4 >= 50 && xp + 4 <= 58) {
+            gold -= 4;
+            xp   += 4;
+        }
+
         // ── Spread placement ──────────────────────────────────
         const boardState = placeBoardUnits(boardUnits);
         const benchState = Array(9).fill(null);
@@ -470,7 +479,8 @@ export function generate41Board(teamPlan) {
             board: boardState,
             bench: benchState,
             gold:  Math.max(0, gold),
-            level: 8,
+            xp,
+            level: 7,
         };
     }
 
