@@ -1292,6 +1292,7 @@ export const shop_odds = {
     10: {1: 0.05, 2: 0.1,  3: 0.2,  4: 0.4,  5: 0.25}
 };
 
+// Key = current level; value = XP needed to advance from that level to the next.
 export const xp_to_level = {
     2: 2,
     3: 6,
