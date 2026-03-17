@@ -165,19 +165,23 @@ export function calcBoardStrength(units) {
 }
 
 /**
- * Greedily select the strongest board of `level` units from the available pool.
+ * Greedily select the strongest board of `slots` units from the available pool.
  * At each step the unit whose addition most increases board strength is chosen.
+ * Pass `context` to seed the evaluation with already-guaranteed units (their
+ * synergies are considered but they are not included in the returned array).
  *
- * @param {Array<{name: string, stars: number}>} units  Available units to pick from
- * @param {number} level  Number of units on the board (= player level)
- * @returns {Array<{name: string, stars: number}>} Best board found
+ * @param {Array<{name: string, stars: number}>} units    Available units to pick from
+ * @param {number} slots  Number of units to select
+ * @param {Array<{name: string, stars: number}>} [context]  Already-placed units (for synergy context only)
+ * @returns {Array<{name: string, stars: number}>} Newly selected units (context not included)
  */
-export function getBestBoard(units, level) {
+export function getBestBoard(units, slots, context = []) {
     const remaining = [...units];
-    const board = [];
+    const board     = [...context];
+    const selected  = [];
 
-    while (board.length < level && remaining.length) {
-        let bestIdx = -1;
+    while (selected.length < slots && remaining.length) {
+        let bestIdx      = -1;
         let bestStrength = -Infinity;
 
         for (let i = 0; i < remaining.length; i++) {
@@ -191,9 +195,67 @@ export function getBestBoard(units, level) {
         }
 
         if (bestIdx === -1) break;
-        board.push(remaining[bestIdx]);
-        remaining.splice(bestIdx, 1);
+        const chosen = remaining.splice(bestIdx, 1)[0];
+        board.push(chosen);
+        selected.push(chosen);
     }
 
-    return board;
+    return selected;
+}
+
+/**
+ * Identify the strongest tank (highest synergy-aware EHP) and carry (highest
+ * synergy-aware DPS) on a built board.  Mirrors calcBoardStrength's multiplier
+ * logic so the result is consistent with how the scoring model sees the board.
+ *
+ * @param {Array<{name: string, stars: number}>} units
+ * @returns {{ bestTank: {name,stars}|null, bestCarry: {name,stars}|null }}
+ */
+export function getStrongestTankAndCarry(units) {
+    if (!units.length) return { bestTank: null, bestCarry: null };
+
+    const activeEffects = getActiveEffects(units);
+
+    const unitData = units.map(u => ({
+        unit:      u,
+        synergies: pool[u.name]?.synergies ?? [],
+        isT:       isTank(u.name),
+        ehpVal:    getBaseEHP(u.name, u.stars),
+        dpsVal:    getBaseDPS(u.name, u.stars),
+    }));
+
+    for (const eff of activeEffects) {
+        if (eff.scope === 'splash') {
+            for (const u of unitData) {
+                if (eff.metric === 'tank_ehp_pct') u.ehpVal *= (1 + eff.value);
+                else if (eff.metric === 'dps_pct')  u.dpsVal *= (1 + eff.value);
+            }
+        } else if (eff.scope === 'selfish') {
+            for (const u of unitData) {
+                if (!u.synergies.includes(eff.trait)) continue;
+                if (eff.metric === 'tank_ehp_pct') u.ehpVal *= (1 + eff.value);
+                else if (eff.metric === 'dps_pct')  u.dpsVal *= (1 + eff.value);
+            }
+        }
+    }
+
+    const tanks   = unitData.filter(u =>  u.isT).sort((a, b) => b.ehpVal - a.ehpVal);
+    const carries = unitData.filter(u => !u.isT).sort((a, b) => b.dpsVal - a.dpsVal);
+
+    for (const eff of activeEffects) {
+        if (eff.scope === 'strongest_tank' && tanks.length && eff.metric === 'tank_ehp_pct')
+            tanks[0].ehpVal *= (1 + eff.value);
+        else if (eff.scope === 'strongest_carry' && carries.length && eff.metric === 'dps_pct')
+            carries[0].dpsVal *= (1 + eff.value);
+        else if (eff.scope === 'second_strongest_carry' && carries.length > 1 && eff.metric === 'dps_pct')
+            carries[1].dpsVal *= (1 + eff.value);
+    }
+
+    tanks.sort((a, b)   => b.ehpVal - a.ehpVal);
+    carries.sort((a, b) => b.dpsVal - a.dpsVal);
+
+    return {
+        bestTank:  tanks[0]?.unit   ?? null,
+        bestCarry: carries[0]?.unit ?? null,
+    };
 }

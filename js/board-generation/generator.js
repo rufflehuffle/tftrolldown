@@ -1,7 +1,7 @@
 import { pool } from '../tables.js';
 import { isOriginallyLocked } from '../state.js';
-import { getBestBoard, AVG_EHP, AVG_DPS } from '../board-strength.js';
-import { SHOP_SEQUENCE, SECONDARY_GOLD_FLOOR, TANK_CLASS, FRONTLINE_ROLES } from './constants.js';
+import { getBestBoard, getStrongestTankAndCarry, calcBoardStrength } from '../board-strength.js';
+import { SHOP_SEQUENCE, SECONDARY_GOLD_FLOOR, FRONTLINE_ROLES } from './constants.js';
 import { localActiveBreakpoint, localSellValue, buildTraitCounts } from './helpers.js';
 import { simulateShop } from './shop-sim.js';
 import { getMainCarryAndTank } from './carry-tank.js';
@@ -51,8 +51,13 @@ export function generate41Board(teamPlan) {
     let bestResult       = null;
     let bestScore        = -1;
     let validCount       = 0;
+    let fallbackResult   = null;
+    let fallbackScore    = -1;
+
+    const startTime = performance.now();
 
     for (let attempt = 0; attempt < MAX_ATTEMPTS && validCount < NUM_CANDIDATES; attempt++) {
+        if (performance.now() - startTime > 100) break;
 
         // ── Simulate shops & buy ───────────────────────────────
         let gold        = 140;
@@ -138,37 +143,11 @@ export function generate41Board(teamPlan) {
             }
         }
 
-        // ── Pick guaranteed tank and carry ────────────────────
-        // Best tank: highest normalised EHP (cost/star).
-        // Best carry: highest normalised DPS among units matching mainCarry's
-        //             role and damageType.
-        const ehpScore = u => AVG_EHP[pool[u.name]?.cost]?.[u.stars] ?? 0;
-        const dpsScore = u => AVG_DPS[pool[u.name]?.cost]?.[u.stars] ?? 0;
-
-        const bestTank = [...dedupHolding]
-            .filter(u => TANK_CLASS.has(pool[u.name]?.role))
-            .sort((a, b) => ehpScore(b) - ehpScore(a))[0] ?? null;
-
-        const carryArchetype = dedupHolding.filter(u =>
-            pool[u.name]?.role       === mainCarry?.role &&
-            pool[u.name]?.damageType === mainCarry?.damageType
-        );
-        const carryWithTrait = carryArchetype.filter(u =>
-            pool[u.name]?.synergies.some(t => compTraits.has(t))
-        );
-        const bestCarry = mainCarry
-            ? [...(carryWithTrait.length ? carryWithTrait : carryArchetype)]
-                .sort((a, b) => dpsScore(b) - dpsScore(a))[0] ?? null
-            : null;
-
-        // Require a carry matching the comp's carry archetype on the board.
-        if (mainCarry && !bestCarry) continue;
-
         // ── Board selection ────────────────────────────────────
-        const guaranteed    = [bestTank, bestCarry].filter(Boolean);
-        const guaranteedSet = new Set(guaranteed);
-        const remaining     = dedupHolding.filter(u => !guaranteedSet.has(u));
-        const boardUnits    = [...guaranteed, ...getBestBoard(remaining, 7 - guaranteed.length)];
+        // Build the best 7-unit board first using synergy-aware EHP×DPS scoring,
+        // then identify the strongest tank and carry from the result.
+        const boardUnits = getBestBoard(dedupHolding, 7);
+        const { bestCarry } = getStrongestTankAndCarry(boardUnits);
 
         // ── Score candidate board ─────────────────────────────
         // Per planner unit on board:  +(6 - cost)  [lower cost = more points]
@@ -208,27 +187,17 @@ export function generate41Board(teamPlan) {
             if (localActiveBreakpoint(traitName, count) > 0) activeTraitCount++;
         }
 
-        // Reject boards with any traitless unit.
-        const hasTraitless = boardUnits.some(unit =>
-            !pool[unit.name].synergies.some(
-                t => localActiveBreakpoint(t, boardTraitCounts[t] ?? 0) > 0
-            )
-        );
-        if (hasTraitless) continue;
-        validCount++;
-
-        const totalScore = plannerScore + carryTraitScore + tankTraitScore + activeTraitCount;
-        if (totalScore <= bestScore) continue;
-
+        // ── Build full result for every attempt ───────────────
+        // (needed so any attempt can be returned as a fallback)
         const boardSet = new Set(boardUnits);
 
-        // ── Bench: leftover dedup units + dedup extras ────────
+        // Bench: leftover dedup units + dedup extras
         const benchUnits = [
             ...dedupHolding.filter(u => !boardSet.has(u)),
             ...extraBench,
         ];
 
-        // ── Sell non-planner units not on board ───────────────
+        // Sell non-planner units not on board
         const finalBench = [];
         for (const unit of benchUnits) {
             if (!targetSet.has(unit.name) && !boardNames.has(unit.name)) {
@@ -238,7 +207,7 @@ export function generate41Board(teamPlan) {
             }
         }
 
-        // ── Sell excess — 2-cost first → 3-cost → 1-cost ─────
+        // Sell excess — 2-cost first → 3-cost → 1-cost
         const SELL_PRIO = { 2: 1, 3: 2, 1: 3, 4: 4, 5: 5 };
         while (boardUnits.length + finalBench.length > 15) {
             finalBench.sort((a, b) =>
@@ -247,20 +216,24 @@ export function generate41Board(teamPlan) {
             gold += localSellValue(finalBench.shift());
         }
 
-        // ── Buy XP: spend gold on XP until < 50g remaining or 58 XP ──
+        // Buy XP: spend gold on XP until < 50g remaining or 58 XP
         let xp = 0;
         while (gold - 4 >= 50 && xp + 4 <= 58) {
             gold -= 4;
             xp   += 4;
         }
 
-        // ── Spread placement ──────────────────────────────────
+        // Placement
         const boardState = placeBoardUnits(boardUnits, bestCarry);
-        const benchState = Array(9).fill(null);
-        finalBench.slice(0, 9).forEach((u, i) => { benchState[i] = u; });
 
-        bestScore = totalScore;
-        bestResult = {
+        const plannerOnBench = finalBench.filter(u =>  targetSet.has(u.name));
+        const otherOnBench   = finalBench.filter(u => !targetSet.has(u.name));
+
+        const benchState = Array(9).fill(null);
+        otherOnBench.slice(0, 9).forEach((u, i) => { benchState[i] = u; });
+        plannerOnBench.slice(0, 9).forEach((u, i) => { benchState[8 - i] = u; });
+
+        const candidateResult = {
             board: boardState,
             bench: benchState,
             gold:  Math.max(0, gold),
@@ -268,24 +241,29 @@ export function generate41Board(teamPlan) {
             level: 7,
         };
 
-        if (window.__boardGenDebug) {
-            console.log(`[board-gen] candidate #${validCount} (attempt ${attempt + 1}) score=${totalScore}`, {
-                board:   boardUnits.map(u => `${u.name}${u.stars > 1 ? ` ${u.stars}★` : ''}`),
-                scores:  { plannerScore, carryTraitScore, tankTraitScore, activeTraitCount },
-                carry:   bestCarry  ? `${bestCarry.name} ${bestCarry.stars}★`  : null,
-                tank:    bestTank   ? `${bestTank.name} ${bestTank.stars}★`    : null,
-                gold:    Math.max(0, gold),
-            });
+        // ── Fallback: track strongest board by raw EHP×DPS ────
+        const rawScore = calcBoardStrength(boardUnits);
+        if (rawScore > fallbackScore) {
+            fallbackScore  = rawScore;
+            fallbackResult = candidateResult;
         }
+
+        // ── Reject boards where any non-planned unit has no active traits ──
+        const hasTraitless = boardUnits.some(unit =>
+            !targetSet.has(unit.name) &&
+            !pool[unit.name].synergies.some(
+                t => localActiveBreakpoint(t, boardTraitCounts[t] ?? 0) > 0
+            )
+        );
+        if (hasTraitless) continue;
+
+        const totalScore = plannerScore + carryTraitScore + tankTraitScore + activeTraitCount;
+        if (totalScore <= bestScore) continue;
+        validCount++;
+
+        bestScore  = totalScore;
+        bestResult = candidateResult;
     }
 
-    if (!bestResult && window.__boardGenDebug) {
-        console.warn('[board-gen] no valid candidate found after', MAX_ATTEMPTS, 'attempts', {
-            target: targetNames,
-            mainCarry: mainCarry?.name ?? null,
-            mainTank:  mainTank?.name  ?? null,
-        });
-    }
-
-    return bestResult;
+    return bestResult ?? fallbackResult;
 }
