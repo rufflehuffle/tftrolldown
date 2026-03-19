@@ -54,7 +54,7 @@
     align-items: center;
     justify-content: center;
     cursor: default;
-    transition: background-color 0.15s ease;
+    transition: background-color 0.07s ease;
     background-size: cover;
     background-position: center;
 }
@@ -76,7 +76,8 @@
 
 body.is-dragging,
 body.is-dragging .hex,
-body.is-dragging .bench-slot {
+body.is-dragging .bench-slot,
+html.is-dragging {
     cursor: grabbing;
 }
 
@@ -86,7 +87,7 @@ body.is-dragging .bench-slot {
     background-color: hsl(210, 14%, 14%);
     clip-path: polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%);
     cursor: default;
-    transition: background-color 0.15s ease;
+    transition: background-color 0.07s ease;
     background-size: cover;
     background-position: center;
 }

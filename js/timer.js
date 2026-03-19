@@ -176,7 +176,7 @@ const timerPauseBtn = document.querySelector('.timer-pause-btn');
 function updateTimerPauseBtn() {
     const active = isRound() || isPaused();
     timerPauseBtn.style.display = active ? '' : 'none';
-    timerPauseBtn.textContent = isPaused() ? '▶' : '‖';
+    timerPauseBtn.textContent = isPaused() ? '▶' : '❚❚';
 }
 
 timerPauseBtn.addEventListener('click', () => {

@@ -65,6 +65,9 @@ export function updateOverlayContent() {
     }
 }
 
+// Track whether the last round started with a generated board
+let _lastRoundWasGenerated = false;
+
 // Primary button: Start Round (planning) or Reset to Preset (roundEnd)
 rdShopPrimaryBtn.addEventListener('click', () => {
     const mode = getRdMode();
@@ -138,15 +141,24 @@ resetBoardBtn.addEventListener('click', () => {
 
 // postrd retry event
 document.addEventListener('postrd-retry', () => {
-    if (!lastLoadedPreset) return;
-    loadPreset(lastLoadedPreset);
-    timerControls.reset();
-    setRdMode('planning');
+    if (_lastRoundWasGenerated) {
+        timerControls.reset();
+        setRdMode('planning');
+        triggerGenerate41Board();
+    } else {
+        if (!lastLoadedPreset) return;
+        loadPreset(lastLoadedPreset);
+        timerControls.reset();
+        setRdMode('planning');
+    }
     updateOverlayContent();
 });
 
 // Keep overlay fresh on every mode/state change
-document.addEventListener('rdmodechange', () => updateOverlayContent());
+document.addEventListener('rdmodechange', ({ detail: { from, to } }) => {
+    if (from === 'planning' && to === 'round') _lastRoundWasGenerated = state.boardGenerated;
+    updateOverlayContent();
+});
 history.addListener(updateOverlayContent);
 document.addEventListener('teamplanchange', updateOverlayContent);
 

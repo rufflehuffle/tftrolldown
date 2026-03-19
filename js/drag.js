@@ -54,8 +54,11 @@ export function handleDragStart(e, location) {
         shopGhostSlotEl = slotEl;
         shopGhostSlotIndex = location.index;
         shopDragActivated = false;
+        document.documentElement.classList.add('is-dragging');
+        document.body.classList.add('is-dragging');
         // Ghost creation deferred until mouse leaves the slot rect
     } else {
+        document.documentElement.classList.add('is-dragging');
         document.body.classList.add('is-dragging');
         ghost.src = pool[champName].icon;
         ghost.classList.remove('shop-ghost');
@@ -137,6 +140,7 @@ function handleShopDragEnd(e) {
 
 function activateShopDrag(e) {
     shopDragActivated = true;
+    document.documentElement.classList.add('is-dragging');
     document.body.classList.add('is-dragging');
     shopGhostEl = shopGhostSlotEl.cloneNode(true);
     shopGhostEl.classList.add('shop-slot-ghost');
@@ -150,6 +154,7 @@ function activateShopDrag(e) {
 export function endDrag() {
     dragging = null;
     shopDragActivated = false;
+    document.documentElement.classList.remove('is-dragging');
     document.body.classList.remove('is-dragging');
     if (shopGhostEl) {
         shopGhostEl.remove();
