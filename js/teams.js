@@ -1,6 +1,7 @@
 import { pool, traits as traitTable } from './tables.js';
 import { state, _originallyLocked, isOriginallyLocked, saveTeamPlan, saveUnlockedOverrides, syncTeamPlanSlots } from './state.js';
-import { generate41Board, buildTraitCounts } from './board-generation/generator.js';
+import { generateBoard, buildTraitCounts } from './board-generation/generator.js';
+import { is2CostReroll, get2CostCarryAndTank } from './board-generation/detect-reroll.js';
 import { render } from './render.js';
 import { doRoll } from './logic.js';
 import { teamBuilderActive, buildTbPicker } from './team-builder.js';
@@ -35,23 +36,29 @@ function generateTeamName(teamPlanNames) {
         }
     }
 
-    // Main carry: highest-scoring non-Tank; prefer 4-cost; alphabetical tiebreak
-    const carries = names.map(n => pool[n]).filter(c => c && c.role !== 'Tank');
-    const carryScore = (champ) => {
-        let s = champ.synergies.reduce((acc, t) => acc + (traitCounts[t] ?? 0), 0);
-        for (const t of champ.synergies) {
-            const bp = traitTable[t]?.breakpoints ?? [];
-            if (bp.some(b => (traitCounts[t] ?? 0) >= b)) s += 3;
-        }
-        return s;
-    };
-    const fourCostCarries = carries.filter(c => c.cost === 4);
-    const carryPool = fourCostCarries.length ? fourCostCarries : carries;
-    const mainCarry = carryPool.reduce((best, c) => {
-        if (!best) return c;
-        const diff = carryScore(c) - carryScore(best);
-        return diff > 0 || (diff === 0 && c.name < best.name) ? c : best;
-    }, null);
+    // Main carry: for 2-cost reroll comps use the detected 2-cost carry;
+    // otherwise prefer 4-cost, then highest-scoring non-Tank; alphabetical tiebreak
+    let mainCarry = null;
+    if (is2CostReroll(names)) {
+        mainCarry = get2CostCarryAndTank(names).mainCarry;
+    } else {
+        const carries = names.map(n => pool[n]).filter(c => c && c.role !== 'Tank');
+        const carryScore = (champ) => {
+            let s = champ.synergies.reduce((acc, t) => acc + (traitCounts[t] ?? 0), 0);
+            for (const t of champ.synergies) {
+                const bp = traitTable[t]?.breakpoints ?? [];
+                if (bp.some(b => (traitCounts[t] ?? 0) >= b)) s += 3;
+            }
+            return s;
+        };
+        const fourCostCarries = carries.filter(c => c.cost === 4);
+        const carryPool = fourCostCarries.length ? fourCostCarries : carries;
+        mainCarry = carryPool.reduce((best, c) => {
+            if (!best) return c;
+            const diff = carryScore(c) - carryScore(best);
+            return diff > 0 || (diff === 0 && c.name < best.name) ? c : best;
+        }, null);
+    }
 
     const carryName = mainCarry?.name ?? names[0];
     return bestTrait ? `${bestTrait} ${carryName}` : carryName;
@@ -542,9 +549,9 @@ function _applyTeam(team, emptyBoard = false) {
 
 export function loadPreset(team) {
     if (team.autoGenerateTeam) {
-        // Override board/bench with a generated 4-1 layout
+        // Override board/bench with a generated layout (4-1 or 3-2 reroll)
         const target = team.targetTeam?.length ? new Set(team.targetTeam) : new Set(team.teamPlan ?? []);
-        const result = target.size ? generate41Board(target) : null;
+        const result = target.size ? generateBoard(target) : null;
         if (result) {
             const generated = {
                 ...team,

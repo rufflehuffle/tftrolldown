@@ -2,7 +2,7 @@ import { pool, traits as traitTable } from './tables.js';
 import { addXp } from './logic.js';
 import { state, saveTeamPlan, saveUnlockedOverrides, isOriginallyLocked, setPlannedAsGenerateTarget, syncTeamPlanSlots } from './state.js';
 import { render, computeTraits, getSortedTraitEntries, activeBreakpoint, nextBreakpoint, showTraitTooltip, positionTooltip } from './render.js';
-import { generate41Board } from './board-generation/generator.js';
+import { generateBoard } from './board-generation/generator.js';
 import { openTeams, saveActiveTeam, lastLoadedPreset, renameTeam } from './teams.js';
 import { initFilter, getActiveFilterTraits } from './planner-filter.js';
 
@@ -700,7 +700,7 @@ plannerEditBtnEl?.addEventListener('click', () => {
 export function triggerGenerate41Board() {
     const target = state.targetTeam ?? state.teamPlan;
     if (!target.size) return false;
-    const result = generate41Board(target);
+    const result = generateBoard(target);
     if (!result) return false;
     state.gold  = result.gold;
     state.level = result.level;

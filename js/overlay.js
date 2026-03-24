@@ -60,13 +60,14 @@ export function updateOverlayContent() {
         resetBoardBtn.style.display = 'none';
     }
     if (rdPauseResetBtn) {
-        rdPauseResetBtn.disabled = !lastLoadedPreset;
-        rdPauseResetBtn.textContent = lastLoadedPreset ? `↺  ${lastLoadedPreset.name}` : 'Reset to Preset';
+        rdPauseResetBtn.disabled = !lastLoadedPreset && !_lastRoundWasGenerated;
+        rdPauseResetBtn.textContent = lastLoadedPreset ? `↺  ${lastLoadedPreset.name}` : '↺  Regenerate Board';
     }
 }
 
 // Track whether the last round started with a generated board
 let _lastRoundWasGenerated = false;
+export function wasLastRoundGenerated() { return _lastRoundWasGenerated; }
 
 // Primary button: Start Round (planning) or Reset to Preset (roundEnd)
 rdShopPrimaryBtn.addEventListener('click', () => {
@@ -77,7 +78,11 @@ rdShopPrimaryBtn.addEventListener('click', () => {
         timerControls.start();
         startRound();
     } else if (mode === 'roundEnd') {
-        if (lastLoadedPreset) loadPreset(lastLoadedPreset);
+        if (_lastRoundWasGenerated) {
+            triggerGenerate41Board();
+        } else if (lastLoadedPreset) {
+            loadPreset(lastLoadedPreset);
+        }
         timerControls.reset();
         returnToPlanning();
     }
@@ -106,8 +111,12 @@ rdOverlayGenerateBtn.addEventListener('click', () => {
 
 // Pause overlay buttons
 rdPauseResetBtn.addEventListener('click', () => {
-    if (!lastLoadedPreset) return;
-    loadPreset(lastLoadedPreset);
+    if (_lastRoundWasGenerated) {
+        triggerGenerate41Board();
+    } else {
+        if (!lastLoadedPreset) return;
+        loadPreset(lastLoadedPreset);
+    }
     timerControls.reset();
     setRdMode('planning');
     updateOverlayContent();

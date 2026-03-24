@@ -8,7 +8,8 @@ import { timerControls } from './timer.js';
 import { lastLoadedPreset, loadPreset } from './teams.js';
 import { dragging, endDrag } from './drag.js';
 import { playSound } from './audio.js';
-import { rdShopPrimaryBtn, updateOverlayContent } from './overlay.js';
+import { rdShopPrimaryBtn, updateOverlayContent, wasLastRoundGenerated } from './overlay.js';
+import { triggerGenerate41Board } from './planner.js';
 import { state } from './state.js';
 import { render } from './render.js';
 import { addXp } from './logic.js';
@@ -64,8 +65,12 @@ document.addEventListener('keydown', (e) => {
 
     if (e.key === 'd' || e.key === 'D') {
         if (!e.repeat) {
-            if (isRoundEnd() && lastLoadedPreset) {
-                loadPreset(lastLoadedPreset);
+            if (isRoundEnd() && (lastLoadedPreset || wasLastRoundGenerated())) {
+                if (wasLastRoundGenerated()) {
+                    triggerGenerate41Board();
+                } else {
+                    loadPreset(lastLoadedPreset);
+                }
                 timerControls.reset();
                 returnToPlanning();
                 updateOverlayContent();
