@@ -162,19 +162,50 @@ body.rd-planning .rd-shop-overlay  { display: flex; }
 body.rd-roundEnd .rd-shop-overlay  { display: flex; }
 body.rd-paused   .rd-pause-overlay { display: flex; }
 
-/* Round: block team builder and presets buttons */
-body.rd-round .team-builder-button,
-body.rd-round .presets-button {
-    pointer-events: none;
+/* Active round: block team builder button, generate button, team cards and switches */
+/* Builder button: dim only the icon so shared borders aren't affected */
+body.rd-round .builder-btn,
+body.rd-paused .builder-btn {
+    cursor: not-allowed;
+}
+body.rd-round .builder-btn .builder-btn-icon,
+body.rd-paused .builder-btn .builder-btn-icon {
     opacity: 0.35;
+}
+/* Suppress hover bg, border change, icon swap, and hover hint panel */
+body.rd-round .builder-btn:hover,
+body.rd-paused .builder-btn:hover {
+    background: #162021;
+    border-color: #21555A;
+}
+body.rd-round .planner-btn:has(+ div:hover),
+body.rd-paused .planner-btn:has(+ div:hover) {
+    border-right-color: #21555A;
+}
+body.rd-round .builder-btn:hover .builder-btn-icon,
+body.rd-paused .builder-btn:hover .builder-btn-icon {
+    content: unset;
+}
+body.rd-round .builder-btn:hover ~ .builder-panel,
+body.rd-paused .builder-btn:hover ~ .builder-panel {
+    display: none;
 }
 
-/* RoundEnd: also block team builder and presets */
-body.rd-roundEnd .team-builder-button,
-body.rd-roundEnd .presets-button {
-    pointer-events: none;
+body.rd-round .planner-selected__generate-btn,
+body.rd-paused .planner-selected__generate-btn {
     opacity: 0.35;
+    cursor: not-allowed;
 }
+/* Suppress generate button tooltip and hover bg */
+body.rd-round .planner-selected__generate-btn:hover,
+body.rd-paused .planner-selected__generate-btn:hover {
+    background: transparent;
+}
+body.rd-round .planner-selected__generate-btn:hover .generate-btn__tooltip,
+body.rd-paused .planner-selected__generate-btn:hover .generate-btn__tooltip {
+    display: none;
+}
+
 
 /* Block shop interactions behind overlays in planning/roundEnd */
 body.rd-planning .shop-slot,
