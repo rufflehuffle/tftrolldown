@@ -4,10 +4,13 @@
 |------|------|
 | `state.js` | Singleton `state` + localStorage helpers |
 | `tables.js` | Read-only data: pool, traits, shop_odds, xp_to_level (see tables.js Reference below) |
-| `logic.js` | Game mechanics: rolls, buys, sells, moves, star-ups |
-| `effects.js` | Board summons: Ice Tower, Sand Soldiers, Tibbers |
+| `board.js` | **Pure.** Board constants, queries (`boardCount`, `findEmptyBoardHex`), unit accessors — no app imports |
+| `shop.js` | **Pure.** Shop rolling, economy (`doRoll`, `addXp`, `buyXp`) — imports only `tables.js` |
+| `units.js` | **Pure.** Champion queries, star-up, buy/sell — imports `tables.js` + `board.js` |
+| `movement.js` | **Pure.** `moveUnit`, hovered-slot state — imports only `board.js` |
+| `effects.js` | Board summons: Ice Tower, Sand Soldiers, Tibbers — imports `render.js` (computeTraits), `board.js`, `units.js` |
 | `render.js` | DOM rendering: shop, board, bench, traits, XP bar |
-| `commands.js` | Command pattern: `dispatch`, undo/redo, event recording |
+| `commands.js` | **Orchestrator.** Command pattern, undo/redo — imports `state`, `render`, `audio`, all logic modules |
 | `round.js` | Append-only event log consumed by grading + post-RD analysis |
 | `rolldown-state.js` | Mode state machine + `rdmodechange` event |
 | `timer.js` | Countdown; fills board from bench on expiry |
@@ -28,8 +31,10 @@
 
 **Dependency rules:**
 - `state.js` and `tables.js` are leaf nodes — no imports from other app modules
-- `effects.js` exists to break a `logic.js → main.js` circular dep; never inline summons elsewhere
-- `render.js` is called by logic/effects/commands — never calls back into them
+- `board.js`, `shop.js`, `units.js`, `movement.js` are **pure** — all functions take `state` as first parameter, no side effects (no render/audio calls). Only import from `tables.js` and each other
+- `commands.js` is the **orchestrator** — the only module that wires state + logic + render + audio together
+- `effects.js` exists to keep summon logic separate from `units.js`; takes `state` param, caller renders
+- **Always `dispatch(cmd)`** — never call logic functions directly from UI code unless outside rolldown mode (e.g. team-builder, planner setup)
 
 ---
 
@@ -57,11 +62,12 @@ state = {
 ## Key Invariants
 
 - **Always `dispatch(cmd)`** — never call `buyChamp`, `sellUnit`, `moveUnit` directly from UI code
-- **`applyBoardEffects()` after board mutations** — `moveUnit()` calls it internally; `sellUnit()` does not
-- **`boardCount()` excludes** Ice Tower and Sand Soldier (summon tokens, not real units)
-- **Board cap:** `boardCount() >= state.level` blocks placing a non-board unit onto an empty hex
+- **Logic functions are pure** — take `state` as first param, return success/failure. Caller handles `render()`, `playSound()`, `applyBoardEffects(state)`
+- **`applyBoardEffects(state)` after board mutations** — called by commands after `moveUnit`/`sellUnit`; caller must also call `render()`
+- **`boardCount(state)` excludes** Ice Tower and Sand Soldier (summon tokens, not real units)
+- **Board cap:** `boardCount(state) >= state.level` blocks placing a non-board unit onto an empty hex
 - **`history.clear()` after** `loadPreset()` and team-builder drops
-- **Star-up is recursive** — `checkStarUp()` handles 1★→2★→3★ in a single buy
+- **Star-up is recursive** — `checkStarUp(state, champName)` handles 1★→2★→3★ in a single buy
 
 ---
 
