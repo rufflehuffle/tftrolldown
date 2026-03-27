@@ -5,7 +5,7 @@
 import { pool } from '../tables.js';
 import { state } from '../state.js';
 import { getEvents } from '../round.js';
-import { initAnalysis } from './analysis.js';
+import { initAnalysis, onAnalysisVisible } from './analysis.js';
 import { scoreToGrade, METRIC_NAMES } from './helpers.js';
 import { calcSpeed } from '../grading/speed.js';
 import { calcAccuracy } from '../grading/accuracy.js';
@@ -83,6 +83,7 @@ tabs.forEach(tab => {
             panel.classList.toggle('postrd__panel-content--active', active);
             panel.hidden = !active;
         });
+        if (target === 'analysis') onAnalysisVisible();
     });
 });
 
