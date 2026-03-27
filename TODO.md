@@ -1,12 +1,12 @@
 # TODO
 
+## Fast 9 & 1/2/3-cost RR Support
+- Build comp detection for 1-cost, 3-cost, Fast 9
+- Add comp detection in UI / allow user to manually set the generation
+
 ## 🔥 Active
 - Add feedback to round detail
 - Add QHD & 4K support (support more viewports)
-
-## Fast 9 & 1/2/3-cost RR Support
-- Grading and auto board generation currently assume Fast 8 comps
-- Need rolldown support for Fast 9 and 1-cost, 2-cost, 3-cost
 
 ## Bugs
 
