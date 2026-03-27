@@ -1,18 +1,16 @@
 # Bugs
 
-## Gameplay / Logic
+## Trait Panel
 - Inactive traits reorder based on unit positions on board (expected: some fixed order by breakpoints?)
-- Presets don't load with XP in the bank
 
 ## Input / Controls
-- Can hold a shop slot and roll it, leaving a null slot; buying causes wrong unit to be bought
 - Can drag star indicators and unit count if clicking the right spot in board-bench gap
 - `D` key triggers browser default navigation
 - Pressing `D` after timer ends can accidentally reset board (~1s cooldown needed)
 
-## UI / HUD
+## TB Mode / Saved Teams
 - HUD is messed up and clippy in TB mode
-- Disable loading saved teams and entering TB mode while in a round
+- Presets don't load with XP in the bank
 
 ## Unit / Trait / Set Specific
 - Galio can be fielded
