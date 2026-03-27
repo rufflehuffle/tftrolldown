@@ -13,7 +13,10 @@ import {
 } from './mistakes.js';
 import { scoreToGrade, METRIC_NAMES } from './helpers.js';
 import { renderBoard, renderBench, renderShop, renderTraits } from './renderers.js';
-import { captureRects, triggerMoveAnimations, clearGhosts } from './animation.js';
+import { captureRects, prepareMoves, animateOneMove, prepareShopBuys, revealBuy, clearGhosts } from './animation.js';
+import { playSound } from '../audio.js';
+
+const wait = ms => new Promise(r => setTimeout(r, ms));
 
 // ── Shared navigation state ─────────────────────────────────
 let _snapshots          = [];
@@ -114,17 +117,52 @@ function reviewNavigate(label, hexes, shopSlots = null) {
         const isFinal = fi >= frames.length;
 
         const oldRects = captureRects(_snapshots[_current]);
+        const prevSnap = _snapshots[_current];
 
         _current            = idx;
         _highlightHexes     = isFinal ? hexes     : null;
         _highlightShopSlots = isFinal ? shopSlots : null;
+
+        // Roll sfx before rendering the new snapshot
+        const curSnap = _snapshots[_current];
+        if (curSnap.label?.startsWith('Roll')) playSound('roll.mp3');
+        await wait(200);
+        if (cancelled) return;
+
         renderSnap(_snapshots, _current);
 
-        await triggerMoveAnimations(oldRects, captureRects(_snapshots[_current]));
+        // ── Synchronous prep (must run before any await) ──
+        // Hide destination units + create source ghosts
+        const moves = prepareMoves(oldRects, captureRects(curSnap));
+
+        // Hide bought overlays on newly-bought shop slots
+        const newBuys = [];
+        for (let s = 0; s < (curSnap.shopBought?.length ?? 0); s++) {
+            if (curSnap.shopBought[s] && !prevSnap.shopBought?.[s]) newBuys.push(s);
+        }
+        const buyTargets = prepareShopBuys(newBuys);
+
+        // Let viewer see the new shop before buys start
+        await wait(100);
+        if (cancelled) return;
+
+        // ── Sequential shop buys ──
+        for (const target of buyTargets) {
+            if (cancelled) return;
+            revealBuy(target);
+            await wait(100);
+        }
+
+        // ── Sequential unit moves ──
+        for (const move of moves) {
+            if (cancelled) return;
+            await animateOneMove(move);
+            await wait(100);
+        }
 
         if (cancelled) return;
         if (!isFinal) {
-            setTimeout(tick, 100);
+            tick();
         } else {
             _cancelAnimation = null;
         }
@@ -409,7 +447,7 @@ export function renderRolldownReview(events, board, scores) {
         overview.hidden = true;
         logEl.hidden = false;
         backBtnHeader.hidden = false;
-        _reviewMistakeIdx = -1;
+        _reviewMistakeIdx = 0;
         _reviewMode = true;
         _current = 0;
         renderSnap(_snapshots, _current);

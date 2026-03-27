@@ -47,11 +47,13 @@ export function captureRects(snap) {
 }
 
 /**
- * Compare old and new position maps; for each unit that moved,
- * hide the destination unit, then animate ghosts one-by-one.
- * Returns a Promise that resolves when all animations finish.
+ * Synchronously compute moves between old and new position maps,
+ * hide destination units, and pre-create static source ghosts.
+ * Must be called immediately after renderSnap() in the same
+ * synchronous block to prevent the destination hex flash.
+ * @returns {Array} moves — pass to animateOneMove() sequentially.
  */
-export function triggerMoveAnimations(oldRects, newRects) {
+export function prepareMoves(oldRects, newRects) {
     const oldBySig = new Map();
     for (const [posKey, { unit, rect }] of oldRects) {
         const sig = `${unit.name}:${unit.stars ?? 0}`;
@@ -65,7 +67,6 @@ export function triggerMoveAnimations(oldRects, newRects) {
         newBySig.get(sig).push({ posKey, rect, unit, el });
     }
 
-    // Collect all move pairs
     const moves = [];
     for (const [sig, newEntries] of newBySig) {
         const oldEntries = oldBySig.get(sig) ?? [];
@@ -88,33 +89,55 @@ export function triggerMoveAnimations(oldRects, newRects) {
         }
     }
 
-    if (moves.length === 0) return Promise.resolve();
+    if (moves.length === 0) return moves;
 
-    // Show empty hex at destination while ghost flies
+    // Hide destination units so they don't flash before the ghost arrives
     for (const m of moves) {
         m.savedBg = m.destEl.style.backgroundImage;
         m.destEl.style.backgroundImage = 'none';
-        // Hide the star indicator beneath the hex
         const stars = m.destEl.parentElement?.querySelector('.rd-star-indicator');
         if (stars) { m.starsEl = stars; m.savedStars = stars.style.visibility; stars.style.visibility = 'hidden'; }
     }
 
-    // Animate each move sequentially
-    let i = 0;
+    // Pre-create static ghosts at ALL source positions so later
+    // moves' hexes don't flash empty while earlier moves animate.
+    for (const m of moves) {
+        const g = document.createElement('div');
+        g.className = 'rd-fly-ghost';
+        g.style.cssText = [
+            `position:fixed`,
+            `left:${m.fromRect.left}px`,
+            `top:${m.fromRect.top}px`,
+            `width:${m.fromRect.width}px`,
+            `height:${m.fromRect.height}px`,
+            `background-image:url(${champIcon(m.unit.name)})`,
+            `background-size:cover`,
+            `background-position:center`,
+            `clip-path:polygon(50% 0%, 100% 25%, 100% 75%, 50% 100%, 0% 75%, 0% 25%)`,
+            `pointer-events:none`,
+            `z-index:999`,
+        ].join(';');
+        document.body.appendChild(g);
+        m.sourceGhost = g;
+    }
+
+    return moves;
+}
+
+/**
+ * Animate a single move: remove source ghost, fly to destination, restore.
+ * Returns a Promise that resolves when the fly animation finishes.
+ */
+export function animateOneMove(move) {
+    if (move.sourceGhost?.parentNode) move.sourceGhost.remove();
+    playSound('unit_select.mp3');
     return new Promise(resolve => {
-        function next() {
-            if (i >= moves.length) { resolve(); return; }
-            const m = moves[i++];
-            playSound('unit_select.mp3');
-            flyGhost(m.unit, m.fromRect, m.toRect, () => {
-                // Restore unit image + stars once ghost arrives
-                m.destEl.style.backgroundImage = m.savedBg;
-                if (m.starsEl) m.starsEl.style.visibility = m.savedStars;
-                playSound('unit_drop.mp3');
-                next();
-            });
-        }
-        next();
+        flyGhost(move.unit, move.fromRect, move.toRect, () => {
+            move.destEl.style.backgroundImage = move.savedBg;
+            if (move.starsEl) move.starsEl.style.visibility = move.savedStars;
+            playSound('unit_drop.mp3');
+            resolve();
+        });
     });
 }
 
@@ -159,9 +182,43 @@ function flyGhost(unit, fromRect, toRect, onDone) {
     });
 }
 
+// ── Shop buy animation ───────────────────────────────────────
+
+/**
+ * Synchronously hide bought state on the given shop slots so
+ * they can be revealed one-by-one via revealBuy().
+ * Must be called in the same synchronous block as renderSnap().
+ * @returns {Array} targets — pass each to revealBuy().
+ */
+export function prepareShopBuys(boughtIndices) {
+    const shopEl = document.getElementById('rd-shop');
+    const slots  = shopEl?.querySelectorAll('.rd-shop-slot') ?? [];
+    const targets = [];
+    for (const i of boughtIndices) {
+        const slot = slots[i];
+        if (!slot) continue;
+        const overlay = slot.querySelector('.rd-shop-bought-overlay');
+        const img     = slot.querySelector('.rd-shop-img');
+        if (overlay) overlay.style.display = 'none';
+        if (img) img.classList.remove('rd-shop-img--bought');
+        targets.push({ slot, overlay, img });
+    }
+    return targets;
+}
+
+/** Synchronously snap a single shop slot to its bought state + play buy sfx. */
+export function revealBuy(target) {
+    playSound('buy.mp3');
+    if (target.overlay) target.overlay.style.display = '';
+    if (target.img)     target.img.classList.add('rd-shop-img--bought');
+}
+
 // ── Responsive hex sizing ────────────────────────────────────
 
 let _resizeObserver = null;
+let _lastHexW   = -1;
+let _lastScale  = -1;
+let _rafId      = 0;
 
 /**
  * Attach a ResizeObserver to the board area so hex size and
@@ -186,21 +243,43 @@ export function setupResponsive() {
     }
 
     function updateHexSize() {
-        const W = boardArea.clientWidth;
-        const H = boardArea.clientHeight;
+        // Use the screen container (flex: 1, stable height) instead of
+        // boardArea (flex: 0 0 auto, content-driven) to avoid a resize
+        // feedback loop where changing --rd-hex-w resizes boardArea which
+        // re-triggers the observer.
+        const W = rdScreen.clientWidth;
+        const H = rdScreen.clientHeight;
         if (!W || !H) return;
         const uiScale   = Math.max(0.45, Math.min(postrdPanel.clientWidth / 1440, 2.5));
         const scaledGap = HEX_GAP_BASE * uiScale;
-        rdEl.style.setProperty('--rd-ui-scale', uiScale.toFixed(4));
         const fromH = (H * 0.8 - 8) / 5.0;
         const fromW = (W * 0.9 - 6.5 * scaledGap) / 7.5;
         const hexW  = Math.max(20, Math.min(fromH, fromW));
+
+        // Skip update if values haven't meaningfully changed (< 0.5px / 0.01 scale)
+        if (Math.abs(hexW - _lastHexW) < 0.5 && Math.abs(uiScale - _lastScale) < 0.01) {
+            return;
+        }
+        _lastHexW  = hexW;
+        _lastScale = uiScale;
+
+        rdEl.style.setProperty('--rd-ui-scale', uiScale.toFixed(4));
         rdEl.style.setProperty('--rd-hex-w', `${hexW.toFixed(2)}px`);
         requestAnimationFrame(updateTraitPos);
     }
 
+    // Debounce ResizeObserver to avoid jarring intermediate frames
+    function onResize() {
+        cancelAnimationFrame(_rafId);
+        _rafId = requestAnimationFrame(updateHexSize);
+    }
+
     if (_resizeObserver) _resizeObserver.disconnect();
-    _resizeObserver = new ResizeObserver(updateHexSize);
-    _resizeObserver.observe(boardArea);
-    requestAnimationFrame(updateTraitPos);
+    _resizeObserver = new ResizeObserver(onResize);
+    _resizeObserver.observe(rdScreen);
+
+    // Reset cache so first call always applies
+    _lastHexW  = -1;
+    _lastScale = -1;
+    updateHexSize();
 }
