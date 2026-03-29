@@ -8,7 +8,7 @@ export const BACKLINE_ROLES  = new Set(['Caster', 'Marksman', 'Specialist']);
 export const FRONTLINE_ROLES = new Set(['Tank', 'Fighter', 'Assassin']);
 
 // 2-range units: positioned at B1/B7, not A-row, despite frontline roles
-export const TWO_RANGE_UNITS = new Set(['Graves', 'Gwen', 'Fiddlesticks', "Bel'Veth"]);
+export const TWO_RANGE_UNITS = new Set(["Bel'Veth", 'Gwen', 'Urgot', 'Morgana']);
 
 // Gold floor below which secondary item holders are skipped
 export const SECONDARY_GOLD_FLOOR = 20;

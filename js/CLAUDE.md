@@ -172,43 +172,44 @@ See [`grading/CLAUDE.md`](grading/CLAUDE.md) for full grading module documentati
 
 ## tables.js Reference
 
-File: `js/tables.js` — 1303 lines. Use `offset`/`limit` to avoid loading the full 60 KB.
+File: `js/tables.js` — 818 lines (Set 17). Use `offset`/`limit` to avoid loading the full file.
 
 ### Line Ranges
-| Object        | Lines     | Description                   |
-|---------------|-----------|-------------------------------|
-| `pool`        | 1–1231    | 103 champion objects          |
-| `traits`      | 1232–1281 | 50+ trait objects             |
-| `shop_odds`   | 1283–1293 | Level 2–10 shop probabilities |
-| `xp_to_level` | 1295–1303 | XP required per level         |
+| Object        | Lines   | Description                   |
+|---------------|---------|-------------------------------|
+| `pool`        | 1–759   | 63 champion objects           |
+| `traits`      | 760–796 | 35 trait objects              |
+| `shop_odds`   | 797–807 | Level 2–10 shop probabilities |
+| `xp_to_level` | 809–818 | XP required per level         |
 
 ### Champion Schema (pool)
-Each of 103 champions follows this exact structure — do not read the file to discover fields:
+Each of 63 champions follows this exact structure — do not read the file to discover fields:
 ```js
 {
   unlocked: bool,
   cost: 1|2|3|4|5,
   name: string,
-  teamPlannerCode: number,   // ~range 1–840
-  copies_in_pool: number,    // usually 30
+  teamPlannerCode: number,   // 0 = unknown (Set 17 codes not yet available)
+  copies_in_pool: number,    // 30/25/18/10/9 by cost tier
   synergies: string[],       // trait names
-  tile: string,              // ddragon CDN URL (see pattern)
+  tile: string,              // tactics.tools CDN URL (see pattern)
   icon: string,              // metatft CDN URL (see pattern)
-  role: string,              // e.g. Caster, Tank, Assassin, Marksman
-  damageType: 'Magic'|'Attack'
+  role: string,              // Tank, Fighter, Caster, Assassin, Marksman, Specialist
+  damageType: 'Magic'|'Attack'|'Hybrid'
 }
 ```
 URL patterns (never read file just for these):
-- tile: `https://ddragon.leagueoflegends.com/cdn/16.4.1/img/tft-champion/TFT16_{Name}_splash_centered_0.TFT_Set16.png`
-- icon: `https://cdn.metatft.com/file/metatft/champions/tft16_{name_lowercase}.png`
+- tile: `img/tiles/tft17_{name_lowercase}.png`
+- icon: `img/icons/tft17_{name_lowercase}.jpg`
 
 ### Trait Schema (traits)
 ```js
 { icon: string, breakpoints: number[], breakpoint_tiers: string[] }
 ```
+Trait icon URL pattern: `img/traits/{traitslug}.png`
 
 ### Read Guidance
 - Find a champion: `Grep pattern="ChampionName" path="js/tables.js"`
-- Read only traits: `Read js/tables.js offset=1232 limit=50`
-- Read shop_odds / xp_to_level: `Read js/tables.js offset=1283`
+- Read only traits: `Read js/tables.js offset=760 limit=40`
+- Read shop_odds / xp_to_level: `Read js/tables.js offset=797`
 - Full read only when adding/removing champions or doing bulk edits
