@@ -285,7 +285,7 @@ export function renderShopSlot(slot, champName) {
 
             const traitSymbol = document.createElement('div');
             traitSymbol.className = 'shop-slot-trait-symbol';
-            traitSymbol.style.setProperty('--symbol-img', `url(${traitTable[trait].icon})`)
+            traitSymbol.style.setProperty('--symbol-img', `url(${new URL(traitTable[trait].icon, document.baseURI)})`)
             traitDiv.append(traitSymbol)
 
             const traitText = document.createElement('div');

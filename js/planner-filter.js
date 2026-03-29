@@ -27,7 +27,7 @@ function buildFilterTraits(containerEl) {
         <div class="filter__trait-column">
             ${colTraits.map(name => `
                 <div class="filter__trait" data-trait="${name}">
-                    <span class="filter__trait-symbol" style="--symbol-img: url('${traits[name].icon}')"></span>
+                    <span class="filter__trait-symbol" style="--symbol-img: url('${new URL(traits[name].icon, document.baseURI)}')"></span>
                     <span class="filter__trait-name">${name}</span>
                 </div>
             `).join('')}

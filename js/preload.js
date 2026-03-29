@@ -1,15 +1,18 @@
 import { pool, traits } from './tables.js';
 
-const _preloaded = Object.values(pool).map(champ => {
-    if (!champ.tile) return null;
-    const img = new Image();
-    img.src = champ.tile;
-    return img;
+function preloadImage(href) {
+    const link = document.createElement('link');
+    link.rel = 'preload';
+    link.as = 'image';
+    link.href = href;
+    document.head.appendChild(link);
+}
+
+Object.values(pool).forEach(champ => {
+    if (champ.tile) preloadImage(champ.tile);
+    if (champ.icon) preloadImage(champ.icon);
 });
 
-const _preloadedTraits = Object.values(traits).map(trait => {
-    if (!trait.icon) return null;
-    const img = new Image();
-    img.src = trait.icon;
-    return img;
+Object.values(traits).forEach(trait => {
+    if (trait.icon) preloadImage(trait.icon);
 });
