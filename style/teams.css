@@ -7,7 +7,7 @@
     height: 75vh;
     z-index: 500;
     user-select: none;
-    border: 1px solid #473513;
+    border: 0.0625rem solid #473513;
     padding: 3vh 1vw 0 1vw;
 
     display: none;
@@ -67,7 +67,7 @@
 
 .teams__sort {
     font-family: 'Spiegel', sans-serif;
-    border: 1px solid #6F5925;
+    border: 0.0625rem solid #6F5925;
     background: #101A1E;
     color: #79766B;
     padding: 0.5rem 3rem 0.5rem 1rem;
@@ -92,7 +92,7 @@
     display: flex;
     align-items: center;
     justify-content: center;
-    border: 2px solid #C0A366;
+    border: 0.125rem solid #C0A366;
     background: #1E2429;
     padding: 0.5rem 1rem;
     color: #F0E6D2;
@@ -130,7 +130,7 @@
 .team__row {
     display: flex;
     background: linear-gradient(90deg, #101920 50%, #000B13 100%);
-    border: 1px solid #20262B;
+    border: 0.0625rem solid #20262B;
     align-items: center;
     padding: 0.5vh 0.5vw;
     margin-right: 1vw;
@@ -160,7 +160,7 @@
     width: 4vw;
     height: 4vw;
     background: #0B1015;
-    border: 2px solid #040709;
+    border: 0.125rem solid #040709;
     position: relative;
 }
 
@@ -190,14 +190,14 @@
     right: 2vw;
 
     background: #000B13;
-    border: 1px solid #20262B;
+    border: 0.0625rem solid #20262B;
     display: flex;
     flex-direction: column;
     gap: 0.5vh;
     padding: 0.5vh 0.5vw;
     z-index: 10;
 
-    border: 2px solid #6F5925;
+    border: 0.125rem solid #6F5925;
 }
 
 .team__kebab-menu hr {
@@ -270,21 +270,21 @@
     cursor: pointer;
     background: #213E47;
 
-    height: 30px;
+    height: 1.56vw;
 
     box-sizing: border-box;
-    border-radius: 20px;
-    border: 3px solid #5D5C55;
+    border-radius: 9999px;
+    border: 0.1875rem solid #5D5C55;
 }
 
 .team__active-switch-icon {
     position: absolute;
-    left: -15px;
-    top: -8px;
+    left: -0.78vw;
+    top: -0.42vw;
 
-    height: 46px;
-    width: 46px;
-    
+    height: 2.4vw;
+    width: 2.4vw;
+
     display: flex;
     justify-content: center;
     align-items: center;
@@ -300,27 +300,27 @@
 
     position: absolute;
 
-    height: 40px;
-    width: 40px;
+    height: 2.083vw;
+    width: 2.083vw;
 
     clip-path: circle(40%);
     background-color: #1E2429;
 }
 
 .team__active-switch-symbol {
-    width: 20px;
-    height: 20px;
+    width: 1.04vw;
+    height: 1.04vw;
 
     z-index: 2;
 }
 
 input:checked ~ .team__active-switch-slider {
     background: #106A24;
-    border: 3px solid #997F40;
+    border: 0.1875rem solid #997F40;
 }
 
 input:checked ~ .team__active-switch-icon {
-    transform: translateX(2vw);
+    transform: translateX(2.16vw);
     background-color: #997F40;
 }
 
@@ -329,23 +329,23 @@ input:checked ~ .team__active-switch-icon {
     =========================== */
 
 .unit-slot--1-cost {
-    border: 2px solid #3E505E;
+    border: 0.125rem solid #3E505E;
 }
 
 .unit-slot--2-cost {
-    border: 2px solid #0B7827;
+    border: 0.125rem solid #0B7827;
 }
 
 .unit-slot--3-cost {
-    border: 2px solid #2166A6;
+    border: 0.125rem solid #2166A6;
 }
 
 .unit-slot--4-cost {
-    border: 2px solid #B91C8C;
+    border: 0.125rem solid #B91C8C;
 }
 
 .unit-slot--5-cost {
-    border: 2px solid #B88502;
+    border: 0.125rem solid #B88502;
 }
 
 .unit-slot--unlocked::before {
@@ -404,3 +404,31 @@ input:checked ~ .team__active-switch-icon {
     height: 1.2vw;
 }
 
+
+/* ============================================================
+   Archetype label — inline after .team__name
+   ============================================================ */
+
+.team__archetype-label {
+    display: flex;
+    align-items: center;
+    gap: 3px;
+    padding: 1px 6px;
+    background: #0F171E;
+    border: 0.0625rem solid #675F4C;
+    align-self: center;
+}
+
+.team__archetype-icon {
+    width: 12px;
+    height: 12px;
+    object-fit: contain;
+}
+
+.team__archetype-label span {
+    font-family: 'Spiegel', sans-serif;
+    font-size: 0.6875rem;
+    color: #A09B8C;
+    text-transform: uppercase;
+    letter-spacing: 0.04em;
+}

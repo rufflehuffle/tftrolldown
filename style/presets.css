@@ -13,7 +13,7 @@
 
 .save-preset-modal {
     background: #1a1a1a;
-    border: 1px solid #333;
+    border: 0.0625rem solid #333;
     border-radius: 10px;
     width: 340px;
     box-shadow: 0 8px 40px rgba(0,0,0,0.7);
@@ -25,12 +25,12 @@
     align-items: center;
     justify-content: space-between;
     padding: 14px 18px 12px;
-    border-bottom: 1px solid #2a2a2a;
+    border-bottom: 0.0625rem solid #2a2a2a;
 }
 
 .save-preset-title {
     color: #e0e0e0;
-    font-size: 15px;
+    font-size: 0.9375rem;
     font-weight: 700;
 }
 
@@ -38,7 +38,7 @@
     background: none;
     border: none;
     color: #888;
-    font-size: 18px;
+    font-size: 1.125rem;
     cursor: pointer;
     padding: 2px 6px;
     border-radius: 4px;
@@ -54,7 +54,7 @@
 }
 
 .save-preset-label {
-    font-size: 12px;
+    font-size: 0.75rem;
     color: #aaa;
     font-weight: 600;
     letter-spacing: 0.4px;
@@ -62,11 +62,11 @@
 
 .save-preset-input {
     background: #222;
-    border: 1px solid #444;
+    border: 0.0625rem solid #444;
     border-radius: 5px;
     color: #e0e0e0;
     padding: 8px 10px;
-    font-size: 14px;
+    font-size: 0.875rem;
     outline: none;
     width: 100%;
     box-sizing: border-box;
@@ -83,10 +83,10 @@
 .save-preset-confirm {
     background: #4c1d95;
     color: #e9d5ff;
-    border: 1px solid #7c3aed;
+    border: 0.0625rem solid #7c3aed;
     border-radius: 5px;
     padding: 7px 18px;
-    font-size: 13px;
+    font-size: 0.8125rem;
     font-weight: 600;
     cursor: pointer;
     transition: background 0.1s;
@@ -96,10 +96,10 @@
 .save-preset-cancel {
     background: #222;
     color: #aaa;
-    border: 1px solid #444;
+    border: 0.0625rem solid #444;
     border-radius: 5px;
     padding: 7px 18px;
-    font-size: 13px;
+    font-size: 0.8125rem;
     font-weight: 600;
     cursor: pointer;
     transition: background 0.1s;
@@ -121,7 +121,7 @@
 
 .presets-modal {
     background: #1a1a1a;
-    border: 1px solid #333;
+    border: 0.0625rem solid #333;
     border-radius: 10px;
     width: min(700px, 95vw);
     max-height: 80vh;
@@ -136,13 +136,13 @@
     align-items: center;
     justify-content: space-between;
     padding: 14px 18px 12px;
-    border-bottom: 1px solid #2a2a2a;
+    border-bottom: 0.0625rem solid #2a2a2a;
     flex-shrink: 0;
 }
 
 .presets-title {
     color: #e0e0e0;
-    font-size: 16px;
+    font-size: 1rem;
     font-weight: 700;
     letter-spacing: 0.4px;
 }
@@ -151,7 +151,7 @@
     background: none;
     border: none;
     color: #888;
-    font-size: 18px;
+    font-size: 1.125rem;
     cursor: pointer;
     padding: 2px 6px;
     border-radius: 4px;
@@ -170,7 +170,7 @@
 
 .preset-item {
     background: #222;
-    border: 1px solid #2e2e2e;
+    border: 0.0625rem solid #2e2e2e;
     border-radius: 8px;
     padding: 12px 14px;
     display: flex;
@@ -194,7 +194,7 @@
 
 .preset-name {
     color: #e0e0e0;
-    font-size: 14px;
+    font-size: 0.875rem;
     font-weight: 700;
 }
 
@@ -205,7 +205,7 @@
 }
 
 .preset-badge {
-    font-size: 10px;
+    font-size: 0.625rem;
     font-weight: 700;
     padding: 1px 5px;
     border-radius: 3px;
@@ -233,12 +233,12 @@
 
 .preset-delete {
     background: none;
-    border: 1px solid #444;
+    border: 0.0625rem solid #444;
     color: #888;
     border-radius: 4px;
     width: 28px;
     height: 28px;
-    font-size: 13px;
+    font-size: 0.8125rem;
     cursor: pointer;
     display: flex;
     align-items: center;
@@ -252,7 +252,7 @@
     display: flex;
     align-items: center;
     gap: 6px;
-    font-size: 11px;
+    font-size: 0.6875rem;
     color: #888;
     cursor: pointer;
     user-select: none;
@@ -261,7 +261,7 @@
 
 .presets-empty {
     color: #555;
-    font-size: 14px;
+    font-size: 0.875rem;
     font-style: italic;
     text-align: center;
     padding: 40px 0;

@@ -31,7 +31,7 @@
     width: 75vw;
     height: 75vh;
     background: #0D1416;
-    border: 2px solid #947842;
+    border: 0.125rem solid #947842;
     box-shadow: 0 8px 40px rgba(0, 0, 0, 0.7);
 }
 
@@ -41,7 +41,7 @@
     align-items: flex-end;
     justify-content: space-between;
     background: #0a1014;
-    border-bottom: 2px solid #947842;
+    border-bottom: 0.125rem solid #947842;
     padding: 0 16px 0 0;
     flex-shrink: 0;
 }
@@ -54,14 +54,14 @@
 
 .postrd__tab {
     font-family: 'Beaufort', serif;
-    font-size: 13px;
+    font-size: 0.8125rem;
     font-weight: 700;
     letter-spacing: 0.8px;
     text-transform: uppercase;
     color: #675F4C;
     background: transparent;
     border: none;
-    border-right: 1px solid #2a2318;
+    border-right: 0.0625rem solid #2a2318;
     padding: 12px 22px 10px;
     cursor: pointer;
     transition: color 0.15s, background 0.15s;
@@ -92,7 +92,7 @@
 /* ── Close button ── */
 .postrd__close {
     font-family: 'Spiegel', sans-serif;
-    font-size: 20px;
+    font-size: 1.25rem;
     line-height: 1;
     color: #675F4C;
     background: transparent;
@@ -133,7 +133,7 @@
 .postrd-performance__section-title {
     display: block;
     font-family: 'Beaufort', serif;
-    font-size: 11px;
+    font-size: 0.6875rem;
     font-weight: 700;
     color: #675F4C;
     letter-spacing: 0.8px;

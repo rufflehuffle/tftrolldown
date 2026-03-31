@@ -23,7 +23,7 @@
     transform: translate(-50%, -50%);
     width: clamp(460px, 72vw, 720px);
     background: #000B13;
-    border: 2px solid #73654A;
+    border: 0.125rem solid #73654A;
     z-index: 600;
     user-select: none;
 }
@@ -39,14 +39,14 @@
     align-items: center;
     gap: 8px;
     padding: 10px 14px;
-    border-bottom: 2px solid #846A33;
+    border-bottom: 0.125rem solid #846A33;
     background: #182226;
     flex-shrink: 0;
 }
 
 .filter__title {
     font-family: 'Beaufort', serif;
-    font-size: 16px;
+    font-size: 1rem;
     font-weight: 700;
     color: #F0E6D2;
     text-transform: uppercase;
@@ -57,7 +57,7 @@
 
 .filter__clear-btn {
     font-family: 'Beaufort', serif;
-    font-size: 16px;
+    font-size: 1rem;
     font-weight: 700;
     color: #A09B8C;
     text-transform: uppercase;
@@ -74,7 +74,7 @@
 }
 
 .filter__close-btn {
-    font-size: 14px;
+    font-size: 0.875rem;
     color: #A09B8C;
     background: none;
     border: none;
@@ -107,7 +107,7 @@
 }
 
 .filter__trait-column:not(:last-child) {
-    border-right: 1px solid #1F242A;
+    border-right: 0.0625rem solid #1F242A;
 }
 
 .filter__trait {
@@ -138,8 +138,8 @@
 .filter__trait-symbol::before {
     content: "";
     display: block;
-    width: 28px;
-    height: 28px;
+    width: 1.75rem;
+    height: 1.75rem;
     background-image: var(--symbol-img, '');
     background-size: 65%;
     background-repeat: no-repeat;
@@ -159,7 +159,7 @@
 
 .filter__trait-name {
     font-family: 'Beaufort', serif;
-    font-size: 16px;
+    font-size: 1rem;
     color: #CDBE91;
     text-transform: capitalize;
     letter-spacing: 0.3px;

@@ -14,10 +14,12 @@
 
 @media (min-width: 2560px) {
     :root { --hud-h: 300px; --timer-h: 54px; --hex-gap: 6px; }
+    html { font-size: 24px; }
 }
 
 @media (min-width: 3840px) {
     :root { --hud-h: 400px; --timer-h: 72px; --hex-gap: 8px; }
+    html { font-size: 32px; }
 }
 
 .board-area {
@@ -144,11 +146,11 @@ html.is-dragging {
     transform: translateX(-50%);
     pointer-events: auto;
     background: transparent;
-    border: 2px solid #675F4C;
+    border: 0.125rem solid #675F4C;
     color: #A09B8C;
     padding: 5px 20px;
     font-family: 'Beaufort', serif;
-    font-size: 12px;
+    font-size: 0.75rem;
     font-weight: bold;
     letter-spacing: 1px;
     text-transform: uppercase;

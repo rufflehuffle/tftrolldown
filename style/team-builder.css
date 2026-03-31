@@ -34,8 +34,8 @@ body.team-builder-mode .rolldown-mode-button {
     right: 0;
     width: 300px;
     height: 100vh;
-    background: #141414;
-    border-left: 1px solid #2a2a2a;
+    background: #0F171E;
+    border-left: 0.0625rem solid #735D31;
     z-index: 200;
     display: flex;
     flex-direction: column;
@@ -45,7 +45,7 @@ body.team-builder-mode .rolldown-mode-button {
 
 .tb-picker-header {
     padding: 14px 16px 10px;
-    border-bottom: 1px solid #2a2a2a;
+    border-bottom: 0.0625rem solid #735D31;
     flex-shrink: 0;
     display: flex;
     align-items: center;
@@ -54,28 +54,31 @@ body.team-builder-mode .rolldown-mode-button {
 }
 
 .tb-picker-title {
-    color: #e0e0e0;
-    font-size: 15px;
+    color: #C8AA6E;
+    font-size: 1.125rem;
+    font-family: 'Beaufort', serif;
     font-weight: 700;
+    text-transform: uppercase;
     letter-spacing: 0.4px;
 }
 
 .tb-save-btn {
-    background: #1e3a2a;
-    color: #86efac;
-    border: 1px solid #3a6a4a;
-    border-radius: 5px;
+    background: #1E2429;
+    color: #C8AA6E;
+    border: 0.0625rem solid #C0A366;
     padding: 4px 10px;
-    font-size: 11px;
-    font-weight: 600;
+    font-size: 0.8125rem;
+    font-family: 'Beaufort', serif;
+    font-weight: 700;
+    text-transform: uppercase;
     cursor: pointer;
     white-space: nowrap;
-    transition: background 0.1s, border-color 0.1s;
-    letter-spacing: 0.2px;
+    transition: background 0.15s ease, border-color 0.15s ease;
+    letter-spacing: 0.5px;
 }
 .tb-save-btn:hover {
-    background: #255335;
-    border-color: #5aaa6a;
+    background: rgba(192, 163, 102, 0.15);
+    border-color: #C8AA6E;
 }
 
 .tb-picker-inner {
@@ -86,17 +89,34 @@ body.team-builder-mode .rolldown-mode-button {
     flex-direction: column;
     gap: 10px;
     scrollbar-width: thin;
-    scrollbar-color: #333 transparent;
+    scrollbar-color: #795b29 #000b13;
+}
+.tb-picker-inner::-webkit-scrollbar {
+    width: 7px;
+}
+.tb-picker-inner::-webkit-scrollbar-track {
+    background: #000b13;
+}
+.tb-picker-inner::-webkit-scrollbar-thumb {
+    background: #795b29;
 }
 
 .tb-cost-group {}
 .tb-cost-label {
-    font-size: 10px;
-    font-weight: 700;
-    letter-spacing: 1px;
-    text-transform: uppercase;
+    display: flex;
+    align-items: center;
+    gap: 8px;
     margin-bottom: 6px;
-    opacity: 0.85;
+}
+.tb-cost-label-icon {
+    width: 18px;
+    height: 18px;
+}
+.tb-cost-label-text {
+    font-size: 1.125rem;
+    font-family: 'Beaufort', serif;
+    font-weight: 700;
+    color: #F0E6D2;
 }
 .tb-cost-units {
     display: flex;
@@ -107,13 +127,13 @@ body.team-builder-mode .rolldown-mode-button {
 .tb-unit {
     width: 44px;
     height: 44px;
-    border-radius: 4px;
+    border-radius: 0;
     border: 2px solid transparent;
     cursor: pointer;
     overflow: hidden;
     position: relative;
     flex-shrink: 0;
-    transition: transform 0.1s ease, border-color 0.1s ease;
+    transition: transform 0.15s ease, border-color 0.15s ease;
 }
 .tb-unit img {
     width: 100%;
@@ -125,7 +145,87 @@ body.team-builder-mode .rolldown-mode-button {
     user-select: none;
 }
 .tb-unit:hover {
-    transform: scale(1.12);
+    filter: brightness(1.3);
+}
+
+/* ============================================================
+   TB Unit Hover Hint
+   ============================================================ */
+.tb-unit-hint {
+    position: fixed;
+    z-index: 600;
+    background: #0F171E;
+    border: 0.125rem solid #735D31;
+    padding: 10px 12px;
+    min-width: 160px;
+    pointer-events: none;
+    display: none;
+    white-space: nowrap;
+}
+
+.tb-unit-hint__header {
+    display: flex;
+    align-items: flex-start;
+    gap: 10px;
+}
+
+.tb-unit-hint__icon {
+    width: 80px;
+    height: 80px;
+    object-fit: cover;
+    object-position: center top;
+    flex-shrink: 0;
+}
+
+.tb-unit-hint__info {
+    display: flex;
+    flex-direction: column;
+    gap: 3px;
+    padding-top: 2px;
+}
+
+.tb-unit-hint__name {
+    font-family: 'Beaufort', serif;
+    font-size: 1rem;
+    font-weight: 700;
+    color: #F0E6D2;
+}
+
+.tb-unit-hint__role {
+    font-family: 'Spiegel', sans-serif;
+    font-size: 0.75rem;
+    color: #A09B8C;
+}
+
+.tb-unit-hint__hr {
+    border: none;
+    border-top: 0.125rem solid #464027;
+    margin: 8px 0;
+}
+
+.tb-unit-hint__traits {
+    display: flex;
+    flex-direction: column;
+    gap: 5px;
+}
+
+.tb-unit-hint__trait {
+    display: flex;
+    align-items: center;
+    gap: 7px;
+}
+
+.tb-unit-hint__trait-icon {
+    width: 18px;
+    height: 18px;
+    object-fit: contain;
+    flex-shrink: 0;
+}
+
+.tb-unit-hint__trait-name {
+    font-family: 'Spiegel', sans-serif;
+    font-size: 0.8125rem;
+    color: #A09B8C;
 }
 
 /* ============================================================
@@ -151,10 +251,10 @@ body.team-builder-mode .hex-wrapper.has-unit:focus-within .star-adj {
     width: 18px;
     height: 18px;
     border-radius: 50%;
-    border: 1px solid rgba(255,255,255,0.3);
+    border: 0.0625rem solid rgba(255,255,255,0.3);
     background: rgba(0,0,0,0.75);
     color: #fff;
-    font-size: 13px;
+    font-size: 0.8125rem;
     font-weight: 700;
     line-height: 1;
     cursor: pointer;
@@ -162,7 +262,7 @@ body.team-builder-mode .hex-wrapper.has-unit:focus-within .star-adj {
     align-items: center;
     justify-content: center;
     padding: 0;
-    transition: background 0.1s, border-color 0.1s;
+    transition: background 0.15s ease, border-color 0.15s ease;
     user-select: none;
 }
 .star-adj button:hover {

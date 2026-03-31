@@ -22,7 +22,7 @@
     height: 75vh;
     z-index: 500;
     user-select: none;
-    border: 1px solid #473513;
+    border: 0.0625rem solid #473513;
 }
 
 .planner__header {
@@ -31,7 +31,7 @@
     grid-column: 1 / span 2;
     padding-bottom: 2px;
     align-items: center;
-    border-bottom: 2px solid #121B20;
+    border-bottom: 0.125rem solid #121B20;
 }
 
 .planner__saved-teams-btn {
@@ -40,7 +40,7 @@
     justify-content: center;
     height: 100%;
     width: 20%;
-    border: 2px solid #C0A366;
+    border: 0.125rem solid #C0A366;
 }
 
 .planner__saved-teams-btn {
@@ -51,7 +51,7 @@
     display: flex;
     align-items: center;
     padding-left: 20px;
-    font-size: 24px;
+    font-size: 1.5rem;
     font-family: 'Beaufort', 'serif';
     font-weight: bold;
     color: #F0E6D2;
@@ -65,7 +65,7 @@
     width: 1.5vw;
     height: 1.5vw;
     margin-right: 1vw;
-    font-size: 24px;
+    font-size: 1.5rem;
     font-family: 'Beaufort', 'serif';
     font-weight: bold;
     color: #F0E6D2;
@@ -100,7 +100,7 @@
     width: 20%;
     padding: 0.5vw 2vw;
 
-    border: 2px solid #675F4C;
+    border: 0.125rem solid #675F4C;
     font-family: "Beaufort", 'serif';
     font-weight: bold;
     color: white;
@@ -130,18 +130,18 @@
     background: #213E47;
 
     box-sizing: border-box;
-    border-radius: 20px;
-    border: 3px solid #5D5C55;
+    border-radius: 9999px;
+    border: 0.1875rem solid #5D5C55;
 }
 
 .planner-picker__unlockable-switch-icon {
     position: absolute;
-    left: -15px;
-    top: -8px;
+    left: -0.78vw;
+    top: -0.42vw;
 
-    height: 46px;
-    width: 46px;
-    
+    height: 2.4vw;
+    width: 2.4vw;
+
     display: flex;
     justify-content: center;
     align-items: center;
@@ -157,44 +157,45 @@
 
     position: absolute;
 
-    height: 40px;
-    width: 40px;
+    height: 2.083vw;
+    width: 2.083vw;
 
     clip-path: circle(40%);
     background-color: #1E2429;
 }
 
 .planner-picker__unlockable-switch-symbol {
-    width: 25px;
-    height: 25px;
+    width: 1.3vw;
+    height: 1.3vw;
 
     z-index: 2;
 }
 
 input:checked ~ .planner-picker__unlockable-switch-slider {
     background: #106A24;
-    border: 3px solid #997F40;
+    border: 0.1875rem solid #997F40;
 }
 
 input:checked ~ .planner-picker__unlockable-switch-icon {
-    transform: translateX(2vw);
+    transform: translateX(2.16vw);
     background-color: #997F40;
 }
 
 .planner-picker__group {
-    display: flex;
-    flex-wrap: wrap;
+    display: grid;
+    grid-template-columns: repeat(4, minmax(0, 1fr));
     gap: 12px;
 }
 
 .planner-picker__group-header {
     display: flex;
+    grid-column: 1 / -1;
     width: 100%;
     padding-bottom: 10px;
 }
 
 .planner-picker__group-text {
-    font-size: 18px;
+    font-size: 1.125rem;
     font-family: 'Beaufort', 'serif';
     color: #F0E6D2;
     font-weight: bold;
@@ -212,64 +213,73 @@ input:checked ~ .planner-picker__unlockable-switch-icon {
 
 
 .planner-picker__unit-container {
-    display: inline-block;
+    display: block;
     position: relative;
 }
 
 .planner-picker__unit {
-    width: 5vw;
+    width: 100%;
+    min-width: 0;
     padding: 2px;
-    border: 2px solid #3E505E;
+    border: 0.125rem solid #3E505E;
     cursor: pointer;
+    box-sizing: border-box;
 }
 
 .picker__unit--1-cost {
-    border: 2px solid #3E505E;
+    border: 0.125rem solid #3E505E;
 }
 
 .picker__unit--2-cost {
-    border: 2px solid #0B7827;
+    border: 0.125rem solid #0B7827;
 }
 
 .picker__unit--3-cost {
-    border: 2px solid #2166A6;
+    border: 0.125rem solid #2166A6;
 }
 
 .picker__unit--4-cost {
-    border: 2px solid #B91C8C;
+    border: 0.125rem solid #B91C8C;
 }
 
 .picker__unit--5-cost {
-    border: 2px solid #B88502;
+    border: 0.125rem solid #B88502;
 }
 
 .picker__unit--selected {
-    outline: 3px solid #A08754;
+    outline: 0.1875rem solid #A08754;
     outline-offset: 0;
 }
 
 .planner-picker__unit-img {
-    width: calc(5vw - 2px);
-    height: calc(5vw - 2px);
+    width: 100%;
+    aspect-ratio: 1;
+    display: block;
     object-fit: cover;
 }
 
 .planner-picker__unit-trait-container {
-    display: flex;
-    padding-left: 16px;
-    gap: 4px;
+    display: grid;
+    grid-template-columns: repeat(3, 1fr);
+    padding: 4px 2px 2px;
 }
 
 .planner-picker__unit-trait {
-    height: 20px;
+    width: 70%;
+    height: auto;
+    display: block;
+    margin: 0 auto;
 }
 
 .planner-picker__unit-name {
-    font-size: 14px;
+    font-size: 0.875rem;
     padding-top: 6px;
     color: #F0E6D2;
     font-family: 'Beaufort', 'serif';
     font-weight: bold;
+    white-space: nowrap;
+    overflow: hidden;
+    text-overflow: ellipsis;
 }
 
 .planner-picker__unit-lock-status {
@@ -393,15 +403,15 @@ input:checked ~ .planner-picker__unlockable-switch-icon {
 }
 
 .planner-selected__title {
-    font-size: 28px;
+    font-size: 1.75rem;
     color: #F0E6D2;
     font-family: 'Beaufort', 'serif';
     font-weight: bold;
 }
 
 .planner-selected__name-input {
-    border: 2px solid #C0A366;
-    font-size: 28px;
+    border: 0.125rem solid #C0A366;
+    font-size: 1.75rem;
     color: #F0E6D2;
     font-family: 'Beaufort', 'serif';
     font-weight: bold;
@@ -415,9 +425,9 @@ input:checked ~ .planner-picker__unlockable-switch-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 13px;
+    font-size: 0.8125rem;
     padding: 5px 12px;
-    border: 2px solid #C0A366;
+    border: 0.125rem solid #C0A366;
     color: #F0E6D2;
     font-family: 'Beaufort', 'serif';
     font-weight: bold;
@@ -444,12 +454,12 @@ input:checked ~ .planner-picker__unlockable-switch-icon {
 
 .planner-selected__clear-btn {
     display: flex;
-    font-size: 16px;
+    font-size: 1rem;
     align-items: center;
     justify-content: center;
     flex: 1;
-    height: 40px;
-    border: 2px solid #C0A366;
+    height: 2.5rem;
+    border: 0.125rem solid #C0A366;
     color: #F0E6D2;
     font-family: 'Beaufort', 'serif';
     font-weight: bold;
@@ -459,11 +469,11 @@ input:checked ~ .planner-picker__unlockable-switch-icon {
 .planner-selected__snapshot-btn {
     display: flex;
     align-items: center;
-    font-size: 16px;
+    font-size: 1rem;
     justify-content: center;
-    border: 2px solid #C0A366;
+    border: 0.125rem solid #C0A366;
     flex: 2;
-    height: 40px;
+    height: 2.5rem;
     color: #F0E6D2;
     font-family: 'Beaufort', 'serif';
     font-weight: bold;
@@ -473,11 +483,11 @@ input:checked ~ .planner-picker__unlockable-switch-icon {
 .planner-selected__undo-btn {
     display: flex;
     align-items: center;
-    font-size: 16px;
+    font-size: 1rem;
     justify-content: center;
-    border: 2px solid #C0A366;
+    border: 0.125rem solid #C0A366;
     flex: 1;
-    height: 40px;
+    height: 2.5rem;
     color: #F0E6D2;
     font-family: 'Beaufort', 'serif';
     font-weight: bold;
@@ -497,8 +507,8 @@ input:checked ~ .planner-picker__unlockable-switch-icon {
 }
 
 .planner-traits__symbol {
-    height: 40px;
-    width: 35px;
+    height: 2.5rem;
+    width: 2.1875rem;
     display: flex;
     align-items: center;
     justify-content: center;
@@ -506,15 +516,15 @@ input:checked ~ .planner-picker__unlockable-switch-icon {
 }
 
 .planner-traits__symbol-img {
-    height: 30px;
-    width: 30px;
+    height: 1.875rem;
+    width: 1.875rem;
 }
 
 .planner-traits__count {
     display: flex;
     justify-content: center;
-    width: 16px;
-    font-size: 16px;
+    width: 1rem;
+    font-size: 1rem;
     font-family: 'Beaufort', 'serif';
     color: #F0E6D2;
     text-shadow: 1px 1px #000000;
@@ -735,9 +745,9 @@ input:checked ~ .planner-picker__unlockable-switch-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 13px;
+    font-size: 0.8125rem;
     padding: 5px 12px;
-    border: 2px solid #C0A366;
+    border: 0.125rem solid #C0A366;
     color: #F0E6D2;
     font-family: 'Beaufort', 'serif';
     font-weight: bold;
@@ -755,9 +765,9 @@ input:checked ~ .planner-picker__unlockable-switch-icon {
     display: flex;
     align-items: center;
     justify-content: center;
-    font-size: 13px;
+    font-size: 0.8125rem;
     padding: 5px 12px;
-    border: 2px solid #C0A366;
+    border: 0.125rem solid #C0A366;
     color: #F0E6D2;
     font-family: 'Beaufort', 'serif';
     font-weight: bold;
@@ -777,7 +787,7 @@ input:checked ~ .planner-picker__unlockable-switch-icon {
     left: 50%;
     transform: translateX(-50%);
     background: #0F171E;
-    border: 1px solid #C0A366;
+    border: 0.0625rem solid #C0A366;
     padding: 5px;
     display: grid;
     grid-template-columns: repeat(5, 1fr);
@@ -790,7 +800,7 @@ input:checked ~ .planner-picker__unlockable-switch-icon {
 .target-preview-unit {
     width: 34px;
     height: 34px;
-    border: 2px solid transparent;
+    border: 0.125rem solid transparent;
     overflow: hidden;
 }
 
@@ -816,10 +826,10 @@ input:checked ~ .planner-picker__unlockable-switch-icon {
     position: fixed;
     z-index: 600;
     background: #0F171E;
-    border: 2px solid #6F623B;
+    border: 0.125rem solid #6F623B;
     padding: 8px 10px;
     min-width: 200px;
-    font-size: 16px;
+    font-size: 1rem;
     pointer-events: none;
     white-space: nowrap;
 }
@@ -844,7 +854,7 @@ input:checked ~ .planner-picker__unlockable-switch-icon {
 
 .unit-info__hr {
     border: none;
-    border-top: 2px solid #464027;
+    border-top: 0.125rem solid #464027;
     margin: 6px 0;
 }
 
@@ -862,7 +872,104 @@ input:checked ~ .planner-picker__unlockable-switch-icon {
 .unit-info__lock-hint {
     margin-top: 6px;
     font-family: 'Spiegel', sans-serif;
-    font-size: 11px;
+    font-size: 0.6875rem;
     color: #9A8C78;
     font-style: italic;
+}
+/* ============================================================
+   Archetype label — inline after .planner-selected__title
+   ============================================================ */
+
+.planner-archetype-label {
+    display: none; /* shown/hidden by JS */
+    align-items: center;
+    gap: 5px;
+    margin-left: 10px;
+    padding: 3px 8px;
+    background: #0F171E;
+    border: 0.0625rem solid #C0A366;
+    cursor: pointer;
+    position: relative;
+    user-select: none;
+    transition: background 0.15s ease;
+}
+
+.planner-archetype-label:hover {
+    background: rgba(192, 163, 102, 0.15);
+}
+
+.archetype-label__icon {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+}
+
+.archetype-label__text {
+    font-family: 'Beaufort', serif;
+    font-weight: 700;
+    font-size: 0.75rem;
+    color: #C8AA6E;
+    letter-spacing: 0.05em;
+    text-transform: uppercase;
+}
+
+.archetype-label__lock {
+    width: 10px;
+    height: 10px;
+    object-fit: contain;
+    opacity: 0.7;
+}
+
+/* Dropdown */
+.archetype-dropdown {
+    position: absolute;
+    top: calc(100% + 4px);
+    left: 0;
+    background: #000B13;
+    border: 0.0625rem solid #C0A366;
+    z-index: 600;
+    min-width: 110px;
+    display: flex;
+    flex-direction: column;
+}
+
+.archetype-dropdown__item {
+    display: flex;
+    align-items: center;
+    gap: 6px;
+    padding: 5px 10px;
+    font-family: 'Beaufort', serif;
+    font-size: 0.75rem;
+    font-weight: 700;
+    color: #F0E6D2;
+    cursor: pointer;
+    text-transform: uppercase;
+    letter-spacing: 0.05em;
+    transition: background 0.15s ease;
+}
+
+.archetype-dropdown__item:hover {
+    background: rgba(192, 163, 102, 0.15);
+}
+
+.archetype-dropdown__item--selected {
+    color: #C8AA6E;
+    background: rgba(192, 163, 102, 0.08);
+}
+
+.archetype-dropdown__icon {
+    width: 14px;
+    height: 14px;
+    object-fit: contain;
+}
+
+/* ── Low-res fixes (≤900px) ── */
+@media (max-width: 900px) {
+    .planner-picker__unit-trait-container {
+        display: none;
+    }
+
+    .planner-traits {
+        overflow: hidden;
+    }
 }
