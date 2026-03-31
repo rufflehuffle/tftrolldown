@@ -38,3 +38,39 @@ export function getMainCarryAndTank(targetNames) {
         traitCounts,
     };
 }
+
+// Fast 9 variant: prefer 5-cost carries and tanks; fall back to all.
+export function getFast9CarryAndTank(targetNames) {
+    const targetChamps = targetNames.map(n => pool[n]).filter(Boolean);
+    const traitCounts  = buildTraitCounts(targetNames);
+
+    function carryScore(champ) {
+        let score = champ.synergies.reduce((s, t) => s + (traitCounts[t] ?? 0), 0);
+        for (const t of champ.synergies) {
+            if (localActiveBreakpoint(t, traitCounts[t] ?? 0) > 0) score += 3;
+        }
+        return score;
+    }
+
+    function tankScore(champ) {
+        return champ.synergies.reduce((s, t) => s + (traitCounts[t] ?? 0), 0);
+    }
+
+    function pickBest(candidates, scoreFn) {
+        if (!candidates.length) return null;
+        const max  = Math.max(...candidates.map(scoreFn));
+        const tied = candidates.filter(c => scoreFn(c) === max);
+        return tied[Math.floor(Math.random() * tied.length)];
+    }
+
+    const fiveCostCarries = targetChamps.filter(c => c.cost === 5 && !TANK_CLASS.has(c.role));
+    const fiveCostTanks   = targetChamps.filter(c => c.cost === 5 &&  TANK_CLASS.has(c.role));
+    const allCarries      = targetChamps.filter(c => !TANK_CLASS.has(c.role));
+    const allTanks        = targetChamps.filter(c =>  TANK_CLASS.has(c.role));
+
+    return {
+        mainCarry: pickBest(fiveCostCarries.length ? fiveCostCarries : allCarries, carryScore),
+        mainTank:  pickBest(fiveCostTanks.length   ? fiveCostTanks   : allTanks,   tankScore),
+        traitCounts,
+    };
+}

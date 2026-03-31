@@ -1,59 +1,32 @@
 import { pool } from '../data/pool.js';
-import { isOriginallyLocked } from '../state.js';
 import { getBestBoard, getStrongestTankAndCarry, calcBoardStrength } from '../board-strength.js';
-import { SHOP_SEQUENCE, SECONDARY_GOLD_FLOOR, FRONTLINE_ROLES } from './constants.js';
+import { FRONTLINE_ROLES, SECONDARY_GOLD_FLOOR } from './constants.js';
 import { localActiveBreakpoint, localSellValue, buildTraitCounts } from './helpers.js';
 import { simulateShop } from './shop-sim.js';
-import { getMainCarryAndTank } from './carry-tank.js';
+import { getFast9CarryAndTank } from './carry-tank.js';
 import { placeBoardUnits } from './positioning.js';
-import { detectArchetype } from './detect-reroll.js';
-import { generate31Board } from './reroll-generator-1cost.js';
-import { generate32Board } from './reroll-generator.js';
-import { generate51Board } from './reroll-generator-3cost.js';
-import { generate52Board } from './fast9-generator.js';
 
-export { buildTraitCounts } from './helpers.js';
-
-// ============================================================
-// Router — picks the right generator based on comp detection.
-// Pass override (one of ARCHETYPES) to bypass auto-detection.
-// ============================================================
-export function generateBoard(teamPlan, override = null) {
-    const targetNames = [...teamPlan].filter(n => pool[n]);
-    if (!targetNames.length) return null;
-
-    const archetype = override ?? detectArchetype(targetNames);
-
-    if (archetype === 'lv5')   return generate31Board(teamPlan);
-    if (archetype === 'lv6')   return generate32Board(teamPlan);
-    if (archetype === 'lv7')   return generate51Board(teamPlan);
-    if (archetype === 'fast9') return generate52Board(teamPlan);
-    return generate41Board(teamPlan); // 'fast8' and null
-}
+// Shop levels visited during a 1-1 → 5-2 curve (Fast 9).
+// [2,3,3,3,4,4,4,5,5,5,5,5,6,6,6,7,7,7,7,8×8]
+const FAST9_SHOP_SEQUENCE = [2, 3, 3, 3, 4, 4, 4, 5, 5, 5, 5, 5, 6, 6, 6, 7, 7, 7, 7, 8, 8, 8, 8, 8, 8, 8, 8];
 
 // ============================================================
 // Main export
 //
 // Assumptions:
-//   • Lv.7, 140g available at 4-1 (total spending budget before buying XP)
-//   • Standard leveling curve (see SHOP_SEQUENCE in constants.js)
-//   • One natural shop per round — no rolling
-//   • After unit buys, gold is spent on XP (4g / 4 XP) until gold would
-//     drop below 50 or XP reaches 58 (just shy of levelling to 8)
-//   • Board effects (Tibbers / Ice Tower / Sand Soldiers) fire on
-//     first unit interaction after load (applyBoardEffects lives
-//     in main.js which cannot be imported here without a cycle).
+//   • Lv.8, 150g available at 5-2
+//   • No pre-seeding (Fast 9 relies on natural Lv.8 shop odds)
+//   • Fast 9 curve (see FAST9_SHOP_SEQUENCE)
+//   • No XP buy — already at Lv.8
+//   • Board size: 8 units (level 8)
 // ============================================================
-export function generate41Board(teamPlan) {
+export function generate52Board(teamPlan) {
     const targetNames = [...teamPlan].filter(n => pool[n]);
     if (!targetNames.length) return null;
 
     const targetSet = new Set(targetNames);
-    const { mainCarry, mainTank } = getMainCarryAndTank(targetNames);
+    const { mainCarry, mainTank } = getFast9CarryAndTank(targetNames);
 
-    // Buy targets:
-    //   Priority  — comp units                                    → always buy if affordable
-    //   Secondary — any frontline unit or trait-sharing unit      → only buy if gold ≥ floor
     const priorityTargets = new Set(targetNames);
     const compTraits = new Set(targetNames.flatMap(n => pool[n]?.synergies ?? []));
     const secondaryTargets = new Set(
@@ -81,12 +54,12 @@ export function generate41Board(teamPlan) {
     for (let attempt = 0; attempt < MAX_ATTEMPTS && validCount < NUM_CANDIDATES; attempt++) {
         if (performance.now() - startTime > 100) break;
 
-        // ── Simulate shops & buy ───────────────────────────────
-        let gold        = 140;
+        let gold        = 150;
         const rawCopies = {};
         const taken     = {};
 
-        for (const level of SHOP_SEQUENCE) {
+        // ── Simulate shops & buy ─────────────────────────────────
+        for (const level of FAST9_SHOP_SEQUENCE) {
             const shop = simulateShop(level, taken);
             for (const champName of shop) {
                 if (!champName || !buyTargets.has(champName)) continue;
@@ -101,36 +74,7 @@ export function generate41Board(teamPlan) {
             }
         }
 
-        // ── Guaranteed copy for originally-locked comp units ──
-        for (const name of targetNames) {
-            if (!isOriginallyLocked(name)) continue;
-            const cost = pool[name].cost;
-            if (cost === 5 || cost === 7) continue;
-            if (gold < cost) continue;
-            rawCopies[name] = (rawCopies[name] ?? 0) + 1;
-            taken[name]     = (taken[name] ?? 0) + 1;
-            gold -= cost;
-        }
-
-        // ── Guaranteed 1-cost copies for planner units ────────
-        const oneCosters = targetNames.filter(n => pool[n].cost === 1);
-        if (oneCosters.length > 0) {
-            for (const name of oneCosters) {
-                if (gold < 1) break;
-                rawCopies[name] = (rawCopies[name] ?? 0) + 1;
-                taken[name]     = (taken[name] ?? 0) + 1;
-                gold -= 1;
-            }
-            for (let i = 0; i < 2; i++) {
-                const name = oneCosters[Math.floor(Math.random() * oneCosters.length)];
-                if (gold < 1) break;
-                rawCopies[name] = (rawCopies[name] ?? 0) + 1;
-                taken[name]     = (taken[name] ?? 0) + 1;
-                gold -= 1;
-            }
-        }
-
-        // ── Cap copies at 3; sell excess ──────────────────────
+        // ── Cap copies at 3; sell excess ─────────────────────────
         for (const [name, count] of Object.entries(rawCopies)) {
             if (count > 3) {
                 gold += (count - 3) * pool[name].cost;
@@ -138,7 +82,7 @@ export function generate41Board(teamPlan) {
             }
         }
 
-        // ── Star-ups: 3 copies → 1 unit at 2★ ────────────────
+        // ── Star-ups: 3 copies → 1 unit at 2★ ──────────────────
         const holding = [];
         for (const [name, count] of Object.entries(rawCopies)) {
             if (count === 3) {
@@ -148,10 +92,9 @@ export function generate41Board(teamPlan) {
             }
         }
 
-        const sortFn = (a, b) => (pool[b.name].cost - pool[a.name].cost) || (b.stars - a.stars);
-        holding.sort(sortFn);
+        holding.sort((a, b) => (pool[b.name].cost - pool[a.name].cost) || (b.stars - a.stars));
 
-        // ── Dedup — no duplicate names ────────────────────────
+        // ── Dedup — no duplicate names ───────────────────────────
         const seenNames    = new Set();
         const dedupHolding = [];
         const extraBench   = [];
@@ -165,17 +108,11 @@ export function generate41Board(teamPlan) {
             }
         }
 
-        // ── Board selection ────────────────────────────────────
-        // Build the best 7-unit board first using synergy-aware EHP×DPS scoring,
-        // then identify the strongest tank and carry from the result.
-        const boardUnits = getBestBoard(dedupHolding, 7);
+        // ── Board selection (8 units at level 8) ─────────────────
+        const boardUnits = getBestBoard(dedupHolding, 8);
         const { bestCarry } = getStrongestTankAndCarry(boardUnits);
 
-        // ── Score candidate board ─────────────────────────────
-        // Per planner unit on board:  +(6 - cost)  [lower cost = more points]
-        // Per planner unit on bench:  -(6 - cost)  [symmetric penalty]
-        // Main carry on board:        +3 bonus
-        // Main tank on board:         +3 bonus
+        // ── Score candidate board ────────────────────────────────
         const boardNames = new Set(boardUnits.map(u => u.name));
         let plannerScore = 0;
         for (const name of targetNames) {
@@ -186,10 +123,8 @@ export function generate41Board(teamPlan) {
         if (mainCarry && boardNames.has(mainCarry.name)) plannerScore += 3;
         if (mainTank  && boardNames.has(mainTank.name))  plannerScore += 3;
 
-        // ── Trait scoring ──────────────────────────────────────
         const boardTraitCounts = buildTraitCounts(boardUnits.map(u => u.name));
 
-        // +2 per active trait contributed by the main carry / main tank on board.
         let carryTraitScore = 0;
         if (mainCarry && boardNames.has(mainCarry.name)) {
             for (const t of pool[mainCarry.name].synergies) {
@@ -203,23 +138,18 @@ export function generate41Board(teamPlan) {
             }
         }
 
-        // +1 per distinct trait on the board that is at an active breakpoint.
         let activeTraitCount = 0;
         for (const [traitName, count] of Object.entries(boardTraitCounts)) {
             if (localActiveBreakpoint(traitName, count) > 0) activeTraitCount++;
         }
 
-        // ── Build full result for every attempt ───────────────
-        // (needed so any attempt can be returned as a fallback)
-        const boardSet = new Set(boardUnits);
-
-        // Bench: leftover dedup units + dedup extras
+        // ── Build full result ────────────────────────────────────
+        const boardSet   = new Set(boardUnits);
         const benchUnits = [
             ...dedupHolding.filter(u => !boardSet.has(u)),
             ...extraBench,
         ];
 
-        // Sell non-planner units not on board
         const finalBench = [];
         for (const unit of benchUnits) {
             if (!targetSet.has(unit.name) && !boardNames.has(unit.name)) {
@@ -229,7 +159,6 @@ export function generate41Board(teamPlan) {
             }
         }
 
-        // Sell excess — 2-cost first → 3-cost → 1-cost
         const SELL_PRIO = { 2: 1, 3: 2, 1: 3, 4: 4, 5: 5 };
         while (boardUnits.length + finalBench.length > 15) {
             finalBench.sort((a, b) =>
@@ -238,14 +167,6 @@ export function generate41Board(teamPlan) {
             gold += localSellValue(finalBench.shift());
         }
 
-        // Buy XP: spend gold on XP until < 50g remaining or 58 XP
-        let xp = 0;
-        while (gold - 4 >= 50 && xp + 4 <= 58) {
-            gold -= 4;
-            xp   += 4;
-        }
-
-        // Placement
         const boardState = placeBoardUnits(boardUnits, bestCarry);
 
         const plannerOnBench = finalBench.filter(u =>  targetSet.has(u.name));
@@ -259,18 +180,16 @@ export function generate41Board(teamPlan) {
             board: boardState,
             bench: benchState,
             gold:  Math.max(0, gold),
-            xp,
-            level: 7,
+            xp:    0,
+            level: 8,
         };
 
-        // ── Fallback: track strongest board by raw EHP×DPS ────
         const rawScore = calcBoardStrength(boardUnits);
         if (rawScore > fallbackScore) {
             fallbackScore  = rawScore;
             fallbackResult = candidateResult;
         }
 
-        // ── Reject boards where any non-planned unit has no active traits ──
         const hasTraitless = boardUnits.some(unit =>
             !targetSet.has(unit.name) &&
             !pool[unit.name].synergies.some(
