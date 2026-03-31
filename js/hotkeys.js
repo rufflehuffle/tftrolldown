@@ -14,33 +14,78 @@ import { triggerGenerate41Board } from './planner.js';
 import { state } from './state.js';
 import { render } from './render.js';
 import { addXp } from './shop.js';
+import { ACTIONS, matches, matchesMouse } from './hotkey-bindings.js';
+
+// ---- Shared action dispatcher ----
+
+function fireAction(id, repeat = false) {
+    switch (id) {
+        case 'loadPreset':
+            if (lastLoadedPreset && !isActiveRound()) loadPreset(lastLoadedPreset);
+            break;
+
+        case 'round':
+            if (isPlanning() && !rdShopPrimaryBtn.disabled) {
+                addXp(state, 2); // +2 XP: round passive grant
+                render();
+                timerControls.start();
+                startRound();
+            } else if (isPaused()) {
+                timerControls.resume();
+                resumeRound();
+            } else if (isRound()) {
+                timerControls.pause();
+                pauseRound();
+            }
+            break;
+
+        case 'reroll':
+            if (!repeat) {
+                if (isRoundEnd() && (lastLoadedPreset || wasLastRoundGenerated())) {
+                    if (wasLastRoundGenerated()) {
+                        triggerGenerate41Board();
+                    } else {
+                        loadPreset(lastLoadedPreset);
+                    }
+                    timerControls.reset();
+                    returnToPlanning();
+                    updateOverlayContent();
+                } else if (!isPlanning() && !isRoundEnd()) {
+                    dispatch(new RollCommand());
+                }
+            }
+            break;
+
+        case 'buyXp':
+            if (!repeat && !isRoundEnd()) dispatch(new BuyXpCommand());
+            break;
+
+        case 'moveToBoard':
+            if (isPlanning()) { playSound('board_full.mp3'); return; }
+            dispatch(new MoveHoveredCommand());
+            break;
+
+        case 'sell': {
+            if (isRoundEnd()) return;
+            const activeSlot = (dragging && dragging.type !== 'shop') ? dragging : hoveredSlot;
+            if (isPlanning() && activeSlot?.type !== 'bench') return;
+            if (dragging && dragging.type !== 'shop') {
+                const unit = getUnitAt(state, dragging);
+                if (unit) dispatch(new SellCommand(unit, dragging));
+                endDrag();
+            } else if (!dragging && hoveredSlot) {
+                const unit = getUnitAt(state, hoveredSlot);
+                if (unit) dispatch(new SellCommand(unit, hoveredSlot));
+            }
+            break;
+        }
+    }
+}
+
+// ---- Keyboard handler ----
 
 document.addEventListener('keydown', (e) => {
-    if (e.key === 'F1') {
-        e.preventDefault();
-        if (lastLoadedPreset && !isActiveRound()) loadPreset(lastLoadedPreset);
-        return;
-    }
-
-    // Space: start round from planning, pause/resume during round
-    if (e.key === ' ' && e.target.tagName !== 'INPUT') {
-        e.preventDefault();
-        if (isPlanning() && !rdShopPrimaryBtn.disabled) {
-            addXp(state, 2); // +2 XP: round passive grant
-            render();
-            timerControls.start();
-            startRound();
-        } else if (isPaused()) {
-            timerControls.resume();
-            resumeRound();
-        } else if (isRound()) {
-            timerControls.pause();
-            pauseRound();
-        }
-        return;
-    }
-
-    // Escape: exit free roll, or pause the round
+    // Escape: exit free roll, or pause the round (hardcoded — not remappable)
     if (e.key === 'Escape') {
         if (isFreeroll()) {
             exitFreeroll();
@@ -64,38 +109,27 @@ document.addEventListener('keydown', (e) => {
 
     if (e.target.tagName === 'INPUT') return;
 
-    if (e.key === 'd' || e.key === 'D') {
-        if (!e.repeat) {
-            if (isRoundEnd() && (lastLoadedPreset || wasLastRoundGenerated())) {
-                if (wasLastRoundGenerated()) {
-                    triggerGenerate41Board();
-                } else {
-                    loadPreset(lastLoadedPreset);
-                }
-                timerControls.reset();
-                returnToPlanning();
-                updateOverlayContent();
-            } else if (!isPlanning() && !isRoundEnd()) {
-                dispatch(new RollCommand());
-            }
+    for (const { id } of ACTIONS) {
+        if (matches(e, id)) {
+            e.preventDefault();
+            fireAction(id, e.repeat);
+            break;
         }
     }
-    if (e.key === 'f' || e.key === 'F') { if (!e.repeat && !isRoundEnd()) dispatch(new BuyXpCommand()); }
-    if (e.key === 'w' || e.key === 'W') {
-        if (isPlanning()) { playSound('board_full.mp3'); return; }
-        dispatch(new MoveHoveredCommand());
-    }
-    if (e.key === 'e' || e.key === 'E') {
-        if (isRoundEnd()) return;
-        const activeSlot = (dragging && dragging.type !== 'shop') ? dragging : hoveredSlot;
-        if (isPlanning() && activeSlot?.type !== 'bench') return;
-        if (dragging && dragging.type !== 'shop') {
-            const unit = getUnitAt(state, dragging);
-            if (unit) dispatch(new SellCommand(unit, dragging));
-            endDrag();
-        } else if (!dragging && hoveredSlot) {
-            const unit = getUnitAt(state, hoveredSlot);
-            if (unit) dispatch(new SellCommand(unit, hoveredSlot));
+});
+
+// ---- Mouse handler ----
+
+document.addEventListener('mousedown', (e) => {
+    // Don't fire while the hotkeys modal is open (user may be rebinding)
+    if (document.getElementById('hotkeys-modal')?.classList.contains('hotkeys-modal--open')) return;
+    if (e.target.tagName === 'INPUT') return;
+
+    for (const { id } of ACTIONS) {
+        if (matchesMouse(e, id)) {
+            e.preventDefault();
+            fireAction(id, false);
+            break;
         }
     }
 });
