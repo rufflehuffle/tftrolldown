@@ -1,5 +1,5 @@
 import {
-    ACTIONS, getKey, setKey, resetBindings, keyLabel,
+    ACTIONS, getKeys, setKey, resetBindings, keyLabel,
     isBlockedKey, isBlockedMouseButton, mouseButtonToKey,
 } from './hotkey-bindings.js';
 
@@ -10,8 +10,9 @@ const resetBtn   = document.getElementById('hotkeys-modal-reset');
 const body       = document.getElementById('hotkeys-modal-body');
 const optionsBtn = document.querySelector('.options-btn');
 
-let rebindingId  = null;  // action id currently awaiting a key press
-let cancelRebind = null;  // removes the capture listener
+let rebindingId   = null;  // action id currently awaiting a key press
+let rebindingSlot = null;  // 'primary' | 'secondary'
+let cancelRebind  = null;  // removes the capture listener
 
 // ---- Render ----
 
@@ -58,17 +59,21 @@ function buildRow(action) {
     label.textContent = action.label;
     row.appendChild(label);
 
-    const keysEl = document.createElement('span');
-    keysEl.className = 'hotkeys-modal__keys';
+    const bindingsEl = document.createElement('span');
+    bindingsEl.className = 'hotkeys-modal__bindings';
 
-    const badge = document.createElement('span');
-    badge.className = 'hotkeys-modal__key hotkeys-modal__key--rebindable';
-    badge.title = 'Click to rebind';
-    badge.textContent = keyLabel(getKey(action.id));
-    badge.addEventListener('click', () => startRebind(action.id));
+    const { primary, secondary } = getKeys(action.id);
+    for (const [slot, key] of [['primary', primary], ['secondary', secondary]]) {
+        const badge = document.createElement('span');
+        badge.className = 'hotkeys-modal__key hotkeys-modal__key--rebindable';
+        badge.dataset.slot = slot;
+        badge.title = 'Click to rebind';
+        badge.textContent = keyLabel(key);
+        badge.addEventListener('click', () => startRebind(action.id, slot));
+        bindingsEl.appendChild(badge);
+    }
 
-    keysEl.appendChild(badge);
-    row.appendChild(keysEl);
+    row.appendChild(bindingsEl);
     return row;
 }
 
@@ -83,8 +88,6 @@ function buildFixedSection() {
 
     const fixed = [
         { label: 'Exit freeroll / Pause round', keys: [['Esc']] },
-        { label: 'Undo',  keys: [['Ctrl', 'Z']] },
-        { label: 'Redo',  keys: [['Ctrl', 'Y']] },
     ];
 
     for (const { label, keys } of fixed) {
@@ -96,24 +99,20 @@ function buildFixedSection() {
         lbl.textContent = label;
         row.appendChild(lbl);
 
-        const keysEl = document.createElement('span');
-        keysEl.className = 'hotkeys-modal__keys';
+        const bindingsEl = document.createElement('span');
+        bindingsEl.className = 'hotkeys-modal__bindings';
 
-        for (const combo of keys) {
-            combo.forEach((k, i) => {
-                const badge = document.createElement('span');
-                badge.className = 'hotkeys-modal__key hotkeys-modal__key--fixed';
-                badge.textContent = k;
-                keysEl.appendChild(badge);
-                if (i < combo.length - 1) {
-                    const sep = document.createElement('span');
-                    sep.className = 'hotkeys-modal__sep';
-                    sep.textContent = '+';
-                    keysEl.appendChild(sep);
-                }
-            });
-        }
-        row.appendChild(keysEl);
+        const primaryBadge = document.createElement('span');
+        primaryBadge.className = 'hotkeys-modal__key hotkeys-modal__key--fixed';
+        primaryBadge.textContent = keys[0][0];
+        bindingsEl.appendChild(primaryBadge);
+
+        const secondaryBadge = document.createElement('span');
+        secondaryBadge.className = 'hotkeys-modal__key hotkeys-modal__key--fixed hotkeys-modal__key--empty';
+        secondaryBadge.textContent = '–';
+        bindingsEl.appendChild(secondaryBadge);
+
+        row.appendChild(bindingsEl);
         sec.appendChild(row);
     }
     return sec;
@@ -126,11 +125,12 @@ function flashError(badge) {
     setTimeout(() => badge.classList.remove('hotkeys-modal__key--error'), 500);
 }
 
-function startRebind(id) {
+function startRebind(id, slot) {
     if (rebindingId) endRebind(true);
-    rebindingId = id;
+    rebindingId   = id;
+    rebindingSlot = slot;
 
-    const badge = getBadge(id);
+    const badge = getBadge(id, slot);
     if (!badge) return;
     badge.classList.add('hotkeys-modal__key--rebinding');
     badge.textContent = '…';
@@ -148,7 +148,7 @@ function startRebind(id) {
             return;
         }
 
-        setKey(id, e.key);
+        setKey(id, slot, e.key);
         endRebind(false);
         render();
     }
@@ -167,7 +167,7 @@ function startRebind(id) {
             return;
         }
 
-        setKey(id, mouseButtonToKey(e.button));
+        setKey(id, slot, mouseButtonToKey(e.button));
         endRebind(false);
         render();
     }
@@ -183,19 +183,20 @@ function startRebind(id) {
 function endRebind(cancelled) {
     if (!rebindingId) return;
     if (cancelled) {
-        const badge = getBadge(rebindingId);
+        const badge = getBadge(rebindingId, rebindingSlot);
         if (badge) {
             badge.classList.remove('hotkeys-modal__key--rebinding');
-            badge.textContent = keyLabel(getKey(rebindingId));
+            badge.textContent = keyLabel(getKeys(rebindingId)[rebindingSlot]);
         }
     }
     cancelRebind?.();
-    cancelRebind = null;
-    rebindingId = null;
+    cancelRebind  = null;
+    rebindingId   = null;
+    rebindingSlot = null;
 }
 
-function getBadge(id) {
-    return body.querySelector(`[data-id="${id}"] .hotkeys-modal__key--rebindable`);
+function getBadge(id, slot) {
+    return body.querySelector(`[data-id="${id}"] [data-slot="${slot}"]`);
 }
 
 // ---- Open / Close ----

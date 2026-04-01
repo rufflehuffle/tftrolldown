@@ -136,10 +136,10 @@
     color: #CDBE91;
 }
 
-.hotkeys-modal__keys {
+.hotkeys-modal__bindings {
     display: flex;
     align-items: center;
-    gap: 4px;
+    gap: 8px;
     flex-shrink: 0;
 }
 
@@ -154,16 +154,10 @@
     background: #1E2429;
     border: 0.0625rem solid #675F4C;
     padding: 2px 7px;
-    min-width: 24px;
+    width: 2.5rem;
     text-align: center;
     letter-spacing: 0.3px;
     box-shadow: 0 1px 0 #000;
-}
-
-.hotkeys-modal__sep {
-    font-family: 'Spiegel', sans-serif;
-    font-size: 0.75rem;
-    color: #635F56;
 }
 
 /* ----- Rebindable badge states ----- */
@@ -203,6 +197,10 @@
 .hotkeys-modal__key--fixed {
     opacity: 0.5;
     cursor: default;
+}
+
+.hotkeys-modal__key--empty {
+    opacity: 0.2;
 }
 
 .hotkeys-modal__row:has(.hotkeys-modal__key--fixed) .hotkeys-modal__action {
