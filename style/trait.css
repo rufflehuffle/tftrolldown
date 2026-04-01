@@ -265,7 +265,7 @@
 @media (max-width: 900px) {
     .trait-panel {
         right: unset;
-        left: 0;
+        left: 20px;
         top: 80px;      /* below stacked toolbar */
         width: 165px;
         max-height: 40vh;
