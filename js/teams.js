@@ -97,6 +97,7 @@ export function renameTeam(id, newName) {
     if (!t) return;
     t.name = newName;
     t.nameIsAuto = false;
+    if (t.isDefault) t.isDefault = false;
     saveTeams(all);
     if (lastLoadedPreset?.id === id) {
         lastLoadedPreset.name = newName;
@@ -201,6 +202,7 @@ export function saveActiveTeam() {
     const t = all.find(t => t.id === lastLoadedPreset.id);
     if (!t) return;
 
+    if (t.isDefault) t.isDefault = false;
     t.board = state.board.snapshot();
     t.bench      = state.bench.map(u => u ? { name: u.name, stars: u.stars } : null);
     t.level      = state.level;
@@ -235,6 +237,7 @@ export function setPresetOverride(id, override) {
     const t = all.find(t => t.id === id);
     if (!t) return;
     t.generationOverride = override;
+    if (t.isDefault) t.isDefault = false;
     Object.assign(lastLoadedPreset, t);
     saveTeams(all);
 }
@@ -475,7 +478,7 @@ function renderTeamsList() {
                 if (autoCb.checked) { loadBoardCb.checked = false; }
                 const all = loadTeams();
                 const t = all.find(t => t.id === team.id);
-                if (t) { t.autoGenerateTeam = autoCb.checked; if (autoCb.checked) t.loadSavedBoard = false; saveTeams(all); }
+                if (t) { t.autoGenerateTeam = autoCb.checked; if (autoCb.checked) t.loadSavedBoard = false; if (t.isDefault) t.isDefault = false; saveTeams(all); }
             });
             autoLabel.appendChild(autoCb);
             autoLabel.append(' Auto-generate on load');
@@ -493,7 +496,7 @@ function renderTeamsList() {
                 if (loadBoardCb.checked) { autoCb.checked = false; }
                 const all = loadTeams();
                 const t = all.find(t => t.id === team.id);
-                if (t) { t.loadSavedBoard = loadBoardCb.checked; if (loadBoardCb.checked) t.autoGenerateTeam = false; saveTeams(all); }
+                if (t) { t.loadSavedBoard = loadBoardCb.checked; if (loadBoardCb.checked) t.autoGenerateTeam = false; if (t.isDefault) t.isDefault = false; saveTeams(all); }
             });
             loadBoardLabel.appendChild(loadBoardCb);
             loadBoardLabel.append(' Load saved board');
@@ -642,18 +645,18 @@ export function loadPreset(team) {
 }
 
 // ============================================================
-// Seed default presets into localStorage if not already present
+// Refresh default presets from default-presets.json on every load.
+// User-created presets (isDefault !== true) are preserved.
+// Stale defaults are pruned and replaced with the latest fetch.
 // ============================================================
-function _presetsEmpty() {
-    try { return loadTeams().length === 0; } catch { return true; }
-}
-if (_presetsEmpty()) {
-    fetch('default-presets.json')
-        .then(r => r.json())
-        .then(data => {
-            if (_presetsEmpty()) {
-                localStorage.setItem('tft-presets', JSON.stringify(data));
-            }
-        })
-        .catch(() => {});
-}
+fetch('default-presets.json')
+    .then(r => r.json())
+    .then(incoming => {
+        const existing = loadTeams();
+        const userPresets = existing.filter(t => !t.isDefault);
+        // Assign IDs that don't collide with user presets
+        const maxUserIds = userPresets.length ? Math.max(...userPresets.map(t => t.id ?? 0)) : 0;
+        const defaults = incoming.map((t, i) => ({ ...t, id: maxUserIds + i + 1 }));
+        saveTeams([...defaults, ...userPresets]);
+    })
+    .catch(() => {});
