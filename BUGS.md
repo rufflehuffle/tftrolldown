@@ -12,7 +12,9 @@
 
 ## TB Mode / Saved Teams
 - HUD is messed up and clippy in TB mode
-- Presets don't load with XP in the bank
 
 ## Post RD Review
-- Scrolling through feels slow
+- Scrolling through feels slow. Speed up animations by ~50%.
+
+## Rolldown Animation
+- Unit swaps should happen at the same time

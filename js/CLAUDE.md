@@ -45,15 +45,24 @@
 ```js
 state = {
   gold, level, xp,
-  shop: string[5],            // champion names or null
-  bench: Array(9),            // null | { name, stars }
-  board: Board,               // Board instance (see Board Class below)
-  teamPlan: Set,              // planned champion names
-  teamPlanSlots: Array(10),   // ordered slots for planner grid
-  targetTeam: Set | null,     // board-gen override
-  rolldownHistory: number[],  // scores from completed rolldowns
+  shop: string[5],               // champion names or null
+  bench: Array(9),               // null | { name, stars }
+  board: Board,                  // Board instance (see Board Class below)
+  boardGenerated: boolean,       // true when board was populated by triggerGenerate41Board
+  teamPlan: Set,                 // planned champion names (active — get shop badge)
+  teamPlanSlots: Array(10),      // ordered slots for planner grid (includes satisfied units)
+  satisfiedPlanUnits: Set,       // units removed from teamPlan after board gen (already 2-star, not 3-star targets); greyed in planner grid, no shop badge
+  targetTeam: Set | null,        // board-gen override
+  rolldownHistory: number[],     // scores from completed rolldowns
 }
 ```
+
+### `satisfiedPlanUnits` lifecycle
+
+- **Set by** `triggerGenerate41Board()` in `planner.js` immediately after loading the generated board/bench into state.
+- **Exempt from removal:** for reroll archetypes, units of the reroll cost tier are never satisfied (they are 3-star targets). Additionally: lv5 (1-cost reroll) exempts 2-cost tanks; lv6 (2-cost reroll) exempts 3-cost tanks. lv7 (3-cost reroll) has no tank-tier exception.
+- **Reset to empty Set on:** new board generation, preset load (`_applyTeam`, `_applyTeamPlanOnly`), team deactivation (`_deactivateTeam`). Not persisted to localStorage.
+- **Re-add to `teamPlan`:** clicking a greyed slot in the planner grid removes the name from `satisfiedPlanUnits` and re-adds it to `teamPlan`.
 
 **Location format:** `{ type: 'board', key: 'A1' }` | `{ type: 'bench', index: 0 }` | `{ type: 'shop', index: 0 }`
 

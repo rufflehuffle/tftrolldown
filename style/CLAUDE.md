@@ -32,84 +32,9 @@ All font sizes outside scale-wrapped elements (HUD, toolbar, timer, trait panel,
 
 ## Colours
 
-**Do not introduce new colours. No pure black/white.**
+See [`colors.md`](colors.md) for all colour values (backgrounds, gold/blue palettes, trait tiers, cost borders, scrollbars).
 
-**Backgrounds** (darkest = Hextech Black)
-
-| Role | Value |
-|---|---|
-| Page `<body>` | `hsl(210, 90%, 4%)` |
-| Modals | `#000B13` |
-| HUD / popups | `#0D1416` |
-| Planner panel / tooltips | `#0F171E` |
-| Cards / placeholders | `#1E2429` |
-| Timer pill | `#090a0c` |
-| Toolbar | `#162021` |
-
-**Gold — Hextech Metal (frames, labels, static structure)**
-
-| Role | Value |
-|---|---|
-| Primary text (Gold 1) | `#F0E6D2` |
-| HUD labels (Gold 2) | `#C8AA6E` |
-| Action button border (Gold 3) | `#C0A366` |
-| HUD outer border (Gold 4) | `#947842` |
-| Toolbar trim (Gold 5) | `#735D31` |
-| Inactive border (Gold 6) | `#675F4C` |
-| Scrollbar thumb (Gold 7) | `#795b29` |
-
-**Blue — Hextech Magic (attention, interaction, timers)**
-
-| Role | Value |
-|---|---|
-| Level text | `#90c8ff` |
-| XP text | `#6a9fd8` |
-| Buy XP border | `#42829C` |
-| Teal toolbar caps | `#21555A` |
-| Teal hover | `#529A94` |
-| Timer — normal | `#38bdf8` |
-| Timer — warning | `#f97316` |
-| Timer — expired | `#ef4444` |
-
-**Text on dark**
-
-| Role | Value |
-|---|---|
-| Primary (Gold 1) | `#F0E6D2` |
-| Active trait name | `#EAE0CD` |
-| Muted | `#A09B8C` |
-| Inactive | `#999` |
-| Pip / secondary | `#635F56` |
-| Team name | `#CDBE91` |
-
-**Trait tier colours**
-
-| Tier | Value |
-|---|---|
-| Bronze | `#876049` |
-| Silver | `#819193` |
-| Gold | `#BCA55B` |
-| Legendary | `#E37B23` |
-| Prismatic | `#BDF3ED` |
-| Inactive | `#1E2429` |
-
-**Unit cost borders**
-
-| Cost | Value |
-|---|---|
-| 1 | `#3E505E` |
-| 2 | `#0B7827` |
-| 3 | `#2166A6` |
-| 4 | `#B91C8C` |
-| 5 | `#B88502` |
-
-**Official gradients**
-
-| Name | Direction | Use |
-|---|---|---|
-| Dark Blue | Blue 7 → Blue 6 | Background surfaces only |
-| Gold | Gold 3 → Gold 5 | Metal framing only |
-| Blue | Blue 2 → Blue 4 | Magic/animated elements |
+**Rule:** Gold = frames/static structure. Blue = animation/attention/interaction. Do not mix.
 
 ---
 
@@ -200,77 +125,11 @@ No `border-radius` on game-chrome buttons. `border-radius: 4px` only for small u
 
 ---
 
-## Scrollbars
+## Viewport & Scaling
 
-```css
---sb-track-color: #000b13;
---sb-thumb-color: #795b29;
---sb-size: 7px;
-```
-Always provide both `::-webkit-scrollbar` rules and the `@supports not selector(::-webkit-scrollbar)` `scrollbar-color` fallback.
+See [`scaling.md`](scaling.md) for the two-track scaling strategy, breakpoint rules, and switch slider formula.
 
----
-
-## Viewports & Scaling
-
-| Group | Resolution | HUD scale | Root font-size |
-|---|---|---|---|
-| low-res | 800×600 | 0.62× | 16px (default) |
-| standard | 1280–1920px wide | 1× (design target) | 16px (default) |
-| QHD | 2560×1440 | 1.5× | 24px |
-| 4K | 3840×2160 | 2.0× | 32px |
-
-### Two-track scaling strategy
-
-**Track 1 — Scale-wrapped widgets** (HUD, toolbar, timer, trait panel, popup): use `transform: scale()` at QHD/4K breakpoints. All sizing inside these elements stays in `px` to avoid double-scaling.
-
-**Track 2 — Modals and standalone elements** (planner, teams, postrd, presets, team-builder): sized with `rem`. Root font-size bumps at QHD/4K drive scaling automatically — no per-element media queries needed.
-
-> `border` and `font-size` values in Track 2 files are written in `rem`. `postrd-analysis.css` is an exception — it uses `calc(Npx * var(--rd-ui-scale, 1))` driven by JS and must stay that way.
-
-**`transform-origin` by component:**
-- HUD → `center bottom`
-- Toolbar → `right top`
-- Timer bar → `top center`
-- Trait panel → `top right`
-- Popup → keep in `translate(-50%, -50%) scale(…)` chain
-
-### Breakpoint rules
-
-**`max-width: 900px`**
-- `.hud`, `.toolbar`: scale `0.62`
-- `.trait-panel`: `left: 0; top: 80px; width: 165px; max-height: 40vh; overflow-y: auto`
-- `--hud-h: 130px`
-- Planner: `.planner-picker__unit-trait-container { display: none }` — trait icons hidden in picker cards (too small to read; pagination planned)
-- Planner: `.planner-traits { overflow: hidden }` — trait panel clips rather than overflows
-
-**`max-width: 1919px`**
-- Trait rows: `.trait-row:nth-child(n+7) { display: none }`
-
-**`min-width: 2560px`**
-- HUD scale `1.5`; `--hud-h: 300px`, `--timer-h: 54px`, `--hex-gap: 6px`; `html { font-size: 24px }`
-
-**`min-width: 3840px`**
-- HUD scale `2.0`; `--hud-h: 400px`, `--timer-h: 72px`, `--hex-gap: 8px`; `html { font-size: 32px }`
-
-**Toolbar right offset:** standard `right: min(18vw, calc(50vw - 497px))`; `≤900px`: `right: 0`
-
-### Switch slider formula
-
-Toggle switches (planner + teams) use a `3vw` track. All icon dimensions are `vw`-based so proportions match 1920×1080 at every resolution.
-
-| Property | Value | 1920px equiv |
-|---|---|---|
-| Icon size | `2.4vw` | 46px |
-| Icon `left` | `-0.78vw` | −15px |
-| Icon `top` | `-0.42vw` | −8px |
-| `::before` size | `2.083vw` | 40px |
-| Symbol (planner) | `1.3vw` | 25px |
-| Symbol (teams) | `1.04vw` | 20px |
-| Track height (teams) | `1.56vw` | 30px |
-| Travel (checked state) | `2.16vw` | 41.5px |
-
-Travel derived from: `3vw − icon(2.4vw) + 2 × overhang(0.78vw)` = `2.16vw`.
+**Summary:** Track 1 (HUD/toolbar/timer/trait panel/popup) → `px` + `transform: scale()`. Track 2 (modals/planner/teams) → `rem`. Never mix tracks.
 
 ---
 
@@ -305,7 +164,7 @@ Travel derived from: `3vw − icon(2.4vw) + 2 × overhang(0.78vw)` = `2.16vw`.
 |---|---|
 | Gold = frames/structure; Blue = animation/attention | Mix blue framing with gold animated elements |
 | `clamp()` for values that flex across viewports | Hard-code sizes that should track `--hex-w` |
-| `transform: scale()` at QHD/4K for Track 1; `rem` for Track 2 | Add breakpoints between 900px and 2560px |
+| `transform: scale()` at QHD/4K for Track 1; `rem` for Track 2 | Add *scaling* breakpoints between 900px and 2560px (layout breakpoints for panel sizing are OK) |
 | `rem` for font-size and border in modal/planner CSS | Use `px` in Track 2 files (breaks QHD/4K scaling) |
 | `px` for font-size and border inside scale-wrapped elements | Use `rem` inside HUD/toolbar/timer (causes double-scaling) |
 | `user-select: none` on all display-only game elements | Add `border-radius` to game-chrome buttons |

@@ -4,14 +4,6 @@
 - Board generation makes sensible boards
 - Grading supports all types of rolldowns and has an appropriate scale
 - Viewport support from 800x600 to 4K
-  - Issues with other viewports (currently only optimized for 1920x1080):
-    - Small text at high resolutions
-    - Pixel-based borders too small at QHD and 4K
-    - Switch sliders are broken at high resolutions
-    	- Too long and switch doesn't fall into the correct spot due to px-based transforms
-    - Team planner
-    	- Should always display rows of 4 units perfectly fitted at all resolutions
-    		- Currently, there's extra spacing and rows of 3 units at resolutions
 - Final pass over:
   - Shop UI
   - Team Builder
@@ -39,14 +31,11 @@ See [BUGS.md](BUGS.md) for known bugs.
 ### Settings
 - Add "regenerate planner on reset" setting
 
-### Team Planner
-- Snapshot feature
-
 ### Grading
 - Needs another pass to see if weights are distributed correctly and if any more metrics need to be added
 
 ## Fast 9 & 1/2/3-cost RR Support
-- ~~Build comp detection for 1-cost, 3-cost, Fast 9~~ (done — but heuristics are AI-assisted; review against real comps)
+- Review 1-cost, 3-cost, Fast 9 heuristics against real comps
 
 ---
 
